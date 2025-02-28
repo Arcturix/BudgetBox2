@@ -10,6 +10,7 @@ struct Budget: Identifiable, Codable, Hashable, Equatable {
     var isMonthly: Bool = true
     var expenses: [Expense] = []
     
+    
     // Implement Hashable
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)

@@ -35,21 +35,21 @@ struct HomeView: View {
                         
                         if let avatarData = viewModel.userAvatar,
                            let uiImage = UIImage(data: avatarData) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 40, height: 40)
-                                .clipShape(Circle())
-                                .padding(.horizontal)
+                            NavigationLink(destination: ProfileView().environmentObject(viewModel)) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(Circle())
+                                    .padding(.horizontal)
+                            }
                         } else {
-                            Button(action: {
-                                // Open profile settings
-                            }) {
+                            NavigationLink(destination: ProfileView().environmentObject(viewModel)) {
                                 Image(systemName: "person.crop.circle")
                                     .foregroundColor(.white)
                                     .font(.title)
+                                    .padding(.horizontal)
                             }
-                            .padding(.horizontal)
                         }
                     }
                     

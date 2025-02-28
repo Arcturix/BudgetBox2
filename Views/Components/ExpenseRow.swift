@@ -39,7 +39,7 @@ struct ExpenseRow: View {
                         Text("Essential")
                             .font(.caption)
                             .foregroundColor(.blue)
-                                       }
+                    }
                 }
                 
                 Spacer()

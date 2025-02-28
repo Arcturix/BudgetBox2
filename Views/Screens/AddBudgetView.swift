@@ -130,3 +130,12 @@ struct AddBudgetView: View {
         dismiss()
     }
 }
+
+#if DEBUG
+struct AddBudgetView_Previews: PreviewProvider {
+    static var previews: some View {
+        AddBudgetView()
+            .environmentObject(BudgetViewModel())
+    }
+}
+#endif

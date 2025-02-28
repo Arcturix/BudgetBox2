@@ -3,40 +3,44 @@ import SwiftUI
 struct BudgetDetailView: View {
     @EnvironmentObject var viewModel: BudgetViewModel
     @State var budget: Budget
+
+    // MARK: - Sheet State Management
+    // For Edit Expense (using item-based presentation)
+    @State private var currentEditExpense: Expense?
     
+    // Original state variables from your design
     @State private var isShowingSheet = false
     @State private var sheetMode: SheetMode = .add
     @State private var expenseToEdit: Expense?
     @State private var showTotalExpense = true
-    
+
     enum SheetMode {
         case add, edit
     }
-    
-    // Sort expenses by date (earliest first)
+
     var sortedExpenses: [Expense] {
         budget.expenses.sorted(by: { $0.date < $1.date })
     }
-    
+
     var body: some View {
         ZStack {
             Color(hex: "383C51")
                 .ignoresSafeArea()
-            
+
             VStack(alignment: .leading, spacing: 10) {
                 Text("Budget Plan")
                     .foregroundColor(.gray)
                     .padding(.horizontal)
-                
+
                 HStack {
                     Text(budget.name)
                         .font(.largeTitle)
                         .bold()
                         .foregroundColor(.white)
                         .padding(.horizontal)
-                    
+
                     Spacer()
-                    
+
                     Circle()
                         .fill(Color(hex: budget.colorHex))
                         .frame(width: 50, height: 50)
@@ -47,21 +51,20 @@ struct BudgetDetailView: View {
                         )
                         .padding(.horizontal)
                 }
-                
+
                 HStack(spacing: 20) {
-                    // Total Budget
                     VStack(alignment: .leading, spacing: 5) {
                         HStack {
                             Image(systemName: "arrow.down")
                                 .foregroundColor(.white)
                                 .opacity(0.7)
-                            
+
                             Text("Total Budget")
                                 .foregroundColor(.white)
                                 .opacity(0.7)
                                 .font(.caption)
                         }
-                        
+
                         if viewModel.showValuesEnabled {
                             Text(budget.amount.formatted(.currency(code: budget.currency.rawValue)))
                                 .font(.title2)
@@ -87,7 +90,7 @@ struct BudgetDetailView: View {
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
-                            
+
                             Image(systemName: "eurosign")
                                 .resizable()
                                 .scaledToFit()
@@ -98,20 +101,19 @@ struct BudgetDetailView: View {
                     )
                     .cornerRadius(16)
                     .shadow(color: Color(hex: budget.colorHex).opacity(0.4), radius: 10, x: 0, y: 4)
-                    
-                    // Total Expense
+
                     VStack(alignment: .leading, spacing: 5) {
                         HStack {
                             Image(systemName: "arrow.up")
                                 .foregroundColor(.white)
                                 .opacity(0.7)
-                            
+
                             Text(showTotalExpense ? "Total Expense" : "Remaining Budget")
                                 .foregroundColor(.white)
                                 .opacity(0.7)
                                 .font(.caption)
                         }
-                        
+
                         if viewModel.showValuesEnabled {
                             Button(action: {
                                 withAnimation {
@@ -129,7 +131,7 @@ struct BudgetDetailView: View {
                                             .font(.title2)
                                             .fontWeight(.bold)
                                             .foregroundColor(.white)
-                                        
+
                                         Text("\(Int((budget.remainingAmount / budget.amount) * 100))% Remaining")
                                             .font(.caption)
                                             .foregroundColor(.white.opacity(0.7))
@@ -156,7 +158,7 @@ struct BudgetDetailView: View {
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
-                            
+
                             Image(systemName: "creditcard")
                                 .resizable()
                                 .scaledToFit()
@@ -167,25 +169,23 @@ struct BudgetDetailView: View {
                     )
                     .cornerRadius(16)
                     .shadow(color: Color(hex: budget.colorHex).opacity(0.4), radius: 10, x: 0, y: 4)
-                    }
-                    .padding(.horizontal)
-                
-                
-                // Budget Items
+                }
+                .padding(.horizontal)
+
+
                 VStack(alignment: .leading) {
                     HStack {
                         Text("Budget Items")
                             .foregroundColor(.white)
                             .font(.headline)
-                        
+
                         Spacer()
-                        
+
                         Text("\(budget.expenses.count)/10")
                             .foregroundColor(.gray)
                     }
                     .padding(.horizontal)
-                    
-                    // Expense List
+
                     if budget.expenses.isEmpty {
                         Text("No expenses yet")
                             .foregroundColor(.gray)
@@ -209,11 +209,10 @@ struct BudgetDetailView: View {
                                         Label("Delete", systemImage: "trash")
                                     }
                                 }
-                                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                .swipeActions(edge: .leading, allowsFullSwipe: false) {
                                     Button {
-                                        expenseToEdit = expense
-                                        sheetMode = .edit
-                                        isShowingSheet = true
+                                        // Set current expense for edit
+                                        currentEditExpense = expense
                                     } label: {
                                         Label("Edit", systemImage: "pencil")
                                     }
@@ -227,10 +226,9 @@ struct BudgetDetailView: View {
                         .scrollContentBackground(.hidden)
                     }
                 }
-                
+
                 Spacer()
-                
-                // Add Expense Button
+
                 Button(action: {
                     expenseToEdit = nil
                     sheetMode = .add
@@ -239,7 +237,7 @@ struct BudgetDetailView: View {
                     HStack {
                         Image(systemName: "plus.circle.fill")
                             .font(.title2)
-                        
+
                         Text("Add Budget Item")
                             .font(.title3)
                             .fontWeight(.semibold)
@@ -270,7 +268,7 @@ struct BudgetDetailView: View {
                         Button("Edit Budget") {
                             // Open edit budget
                         }
-                        
+
                         Button("Delete Budget", role: .destructive) {
                             viewModel.deleteBudget(id: budget.id)
                         }
@@ -281,28 +279,25 @@ struct BudgetDetailView: View {
                 }
             }
         }
+        // Regular sheet for adding expenses (keeps your existing implementation)
         .sheet(isPresented: $isShowingSheet, onDismiss: {
             updateBudgetFromViewModel()
-            // Reset state after sheet is dismissed
-            if sheetMode == .edit {
-                expenseToEdit = nil
-            }
-            // Always reset to add mode after dismissal
             sheetMode = .add
         }) {
-            if sheetMode == .edit && expenseToEdit != nil {
-                EditExpenseView(budgetId: budget.id, expense: expenseToEdit!)
-                    .environmentObject(viewModel)
-            } else {
+            if sheetMode == .add {
                 AddExpenseView(budgetId: budget.id)
                     .environmentObject(viewModel)
             }
         }
-        .onAppear {
-            // Update budget from viewModel when view appears
+        // Separate fullScreenCover specifically for editing expenses
+        .fullScreenCover(item: $currentEditExpense, onDismiss: {
             updateBudgetFromViewModel()
-            
-            // Add notification observer for real-time updates
+        }) { expense in
+            EditExpenseView(budgetId: budget.id, expense: expense)
+                .environmentObject(viewModel)
+        }
+        .onAppear {
+            updateBudgetFromViewModel()
             NotificationCenter.default.addObserver(
                 forName: NSNotification.Name("RefreshBudgetDetail"),
                 object: nil,
@@ -312,16 +307,13 @@ struct BudgetDetailView: View {
             }
         }
         .onDisappear {
-            // Update viewModel when navigating away
             if let updatedBudget = viewModel.budgets.first(where: { $0.id == budget.id }) {
                 viewModel.updateBudget(updatedBudget)
             }
-            
-            // Remove notification observer
             NotificationCenter.default.removeObserver(self, name: NSNotification.Name("RefreshBudgetDetail"), object: nil)
         }
     }
-    
+
     func updateBudgetFromViewModel() {
         if let updatedBudget = viewModel.budgets.first(where: { $0.id == budget.id }) {
             budget = updatedBudget

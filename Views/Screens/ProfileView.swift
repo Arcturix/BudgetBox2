@@ -71,3 +71,10 @@ struct ProfileView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+
+struct ProfileView_Previews: PreviewProvider {
+    static var previews: some View {
+        ProfileView()
+            .environmentObject(BudgetViewModel())
+    }
+}
