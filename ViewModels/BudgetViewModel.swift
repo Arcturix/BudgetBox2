@@ -6,6 +6,7 @@ class BudgetViewModel: ObservableObject {
     @Published var budgets: [Budget] = []
     @Published var showValuesEnabled: Bool = true
     @Published var userAvatar: Data?
+    @Published var budgetItemLimitEnabled: Bool = true
     
     private let saveKey = "saved_budgets"
     private let userDefaultsManager = UserDefaultsManager()
@@ -18,11 +19,13 @@ class BudgetViewModel: ObservableObject {
         budgets = userDefaultsManager.load(key: saveKey) ?? []
         showValuesEnabled = userDefaultsManager.load(key: "show_values") ?? true
         userAvatar = userDefaultsManager.load(key: "user_avatar")
+        budgetItemLimitEnabled = userDefaultsManager.load(key: "budget_item_limit_enabled") ?? true
     }
     
     func saveData() {
         userDefaultsManager.save(budgets, key: saveKey)
         userDefaultsManager.save(showValuesEnabled, key: "show_values")
+        userDefaultsManager.save(budgetItemLimitEnabled, key: "budget_item_limit_enabled")
         if let avatar = userAvatar {
             userDefaultsManager.save(avatar, key: "user_avatar")
         }
@@ -54,6 +57,12 @@ class BudgetViewModel: ObservableObject {
     
     func addExpense(_ expense: Expense, to budgetId: UUID) {
         if let index = budgets.firstIndex(where: { $0.id == budgetId }) {
+            // Check if limit is reached and enabled
+            if budgetItemLimitEnabled && budgets[index].expenses.count >= 10 {
+                // Don't add the expense if limit is reached
+                return
+            }
+            
             budgets[index].expenses.append(expense)
             saveData()
         }
@@ -81,6 +90,11 @@ class BudgetViewModel: ObservableObject {
     
     func setUserAvatar(_ imageData: Data?) {
         userAvatar = imageData
+        saveData()
+    }
+    
+    func toggleBudgetItemLimit() {
+        budgetItemLimitEnabled.toggle()
         saveData()
     }
 }

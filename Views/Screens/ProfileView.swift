@@ -45,21 +45,56 @@ struct ProfileView: View {
                         .padding(.top)
                 }
                 
-                Toggle(isOn: $viewModel.showValuesEnabled) {
-                    Text("Show Amount Values")
-                        .foregroundColor(.white)
+                // Settings Section
+                VStack(spacing: 15) {
+                    // Existing Toggle
+                    Toggle(isOn: $viewModel.showValuesEnabled) {
+                        Text("Show Amount Values")
+                            .foregroundColor(.white)
+                    }
+                    .toggleStyle(SwitchToggleStyle(tint: Color(hex: "A169F7")))
+                    .padding()
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(10)
+                    .onChange(of: viewModel.showValuesEnabled) { _, _ in
+                        viewModel.saveData()
+                    }
+                    
+                    // New Budget Limit Toggle for Development
+                    VStack(alignment: .leading, spacing: 5) {
+                        Toggle(isOn: $viewModel.budgetItemLimitEnabled) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Budget Item Limit")
+                                    .foregroundColor(.white)
+                                
+                                Text("Limit of 10 items per budget")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .toggleStyle(SwitchToggleStyle(tint: Color(hex: "A169F7")))
+                        .onChange(of: viewModel.budgetItemLimitEnabled) { _, _ in
+                            viewModel.saveData()
+                        }
+                        
+                        if !viewModel.budgetItemLimitEnabled {
+                            Text("Developer Mode: Unlimited items enabled")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                                .padding(.leading)
+                        }
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(10)
                 }
-                .toggleStyle(SwitchToggleStyle(tint: Color(hex: "A169F7")))
-                .padding()
-                .background(Color.gray.opacity(0.2))
-                .cornerRadius(10)
                 
                 Spacer()
             }
             .padding()
         }
         // Updated onChange for iOS 17 compatibility
-        .onChange(of: selectedItem) { oldValue, newValue in
+        .onChange(of: selectedItem) { _, newValue in
             Task {
                 if let data = try? await newValue?.loadTransferable(type: Data.self) {
                     selectedImageData = data

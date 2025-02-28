@@ -21,6 +21,11 @@ struct BudgetDetailView: View {
     var sortedExpenses: [Expense] {
         budget.expenses.sorted(by: { $0.date < $1.date })
     }
+    
+    // Determine if the add button should be disabled
+    var isAddButtonDisabled: Bool {
+        viewModel.budgetItemLimitEnabled && budget.expenses.count >= 10
+    }
 
     var body: some View {
         ZStack {
@@ -181,8 +186,14 @@ struct BudgetDetailView: View {
 
                         Spacer()
 
-                        Text("\(budget.expenses.count)/10")
-                            .foregroundColor(.gray)
+                        // Updated count display to show limit status
+                        if viewModel.budgetItemLimitEnabled {
+                            Text("\(budget.expenses.count)/10")
+                                .foregroundColor(budget.expenses.count >= 10 ? .orange : .gray)
+                        } else {
+                            Text("\(budget.expenses.count) items")
+                                .foregroundColor(.gray)
+                        }
                     }
                     .padding(.horizontal)
 
@@ -247,8 +258,8 @@ struct BudgetDetailView: View {
                     .background(
                         LinearGradient(
                             gradient: Gradient(colors: [
-                                Color(hex: budget.colorHex),
-                                Color(hex: budget.colorHex).opacity(0.7)
+                                isAddButtonDisabled ? Color.gray : Color(hex: budget.colorHex),
+                                isAddButtonDisabled ? Color.gray.opacity(0.7) : Color(hex: budget.colorHex).opacity(0.7)
                             ]),
                             startPoint: .leading,
                             endPoint: .trailing
@@ -258,6 +269,17 @@ struct BudgetDetailView: View {
                     .cornerRadius(30)
                     .padding(.horizontal)
                     .padding(.bottom)
+                }
+                .disabled(isAddButtonDisabled)
+                .opacity(isAddButtonDisabled ? 0.6 : 1.0)
+                
+                // Add a message when limit is reached
+                if viewModel.budgetItemLimitEnabled && budget.expenses.count >= 10 {
+                    Text("Maximum of 10 items reached. Disable limit in Profile.")
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.bottom)
                 }
             }
             .navigationTitle("")
