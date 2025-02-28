@@ -45,6 +45,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		AA64CB862D72212D006C4D5C /* Notes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notes.swift; sourceTree = "<group>"; };
 		AA7E298F2D702BCA00665EF3 /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 		AAE3128E2D6F783900ACD756 /* BudgetBox2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BudgetBox2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAE3129E2D6F783A00ACD756 /* BudgetBox2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BudgetBox2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -140,6 +141,7 @@
 		AAE312BB2D6F784800ACD756 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				AA64CB862D72212D006C4D5C /* Notes.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
