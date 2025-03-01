@@ -7,6 +7,7 @@ struct AddExpenseView: View {
     
     // MARK: - Data Properties
     let budgetId: UUID
+    let startYear: Int
     
     // MARK: - State Properties
     @State private var name = ""
@@ -20,6 +21,8 @@ struct AddExpenseView: View {
     @State private var reminderDate = Date()
     @State private var reminderFrequency = Reminder.Frequency.once
     @State private var showAdvancedSettings = false
+    @State private var interestRate: String = ""
+    @State private var expectedAnnualReturn: String = ""
     
     // MARK: - UI Constants
     private let backgroundColor = Color(hex: "282C3E")
@@ -113,7 +116,7 @@ struct AddExpenseView: View {
                     
                     Spacer()
                     
-                    CurrencyPicker(selectedCurrency: $selectedCurrency)
+                    CurrencyPicker(selectedCurrency: $selectedCurrency, startMonth: .constant(1), startYear: .constant(startYear))
                         .foregroundColor(textColor)
                 }
                 .padding(.vertical, 8)
@@ -121,93 +124,136 @@ struct AddExpenseView: View {
         }
     }
     
-        // Category and Date Row
+    // Category and Date Row
     private var categoryAndDateRow: some View {
-        HStack(spacing: 12) {
-            // Category Picker
-            cardView {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Category")
-                        .font(.subheadline)
-                        .foregroundColor(secondaryTextColor)
-                    
-                    Picker(
-                        selection: $selectedCategory,
-                        label: HStack {
-                            // Category icon in blue circle
-                            ZStack {
-                                Circle()
-                                    .fill(accentColor)
-                                    .frame(width: 32, height: 32)
-                                
-                                Image(systemName: selectedCategory.iconName)
-                                    .font(.system(size: iconSize - 3))
-                                    .foregroundColor(.white)
-                            }
-                            
-                            // Small spacer
-                            Spacer()
-                                .frame(width: 10)
-                            
-                            // Category text
-                            Text(selectedCategory.rawValue)
-                                .foregroundColor(textColor)
-                                .font(.system(size: 18))
-                            
-                            Spacer()
-                            
-                            // Dropdown indicator
-                            Image(systemName: "chevron.down")
-                                .font(.caption)
-                                .foregroundColor(secondaryTextColor)
-                        }
-                    ) {
-                        ForEach(ExpenseCategory.allCases, id: \.self) { category in
-                            HStack {
+        VStack(spacing: 12) {
+            HStack(spacing: 12) {
+                // Category Picker
+                cardView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Category")
+                            .font(.subheadline)
+                            .foregroundColor(secondaryTextColor)
+                        
+                        Picker(
+                            selection: $selectedCategory,
+                            label: HStack {
+                                // Category icon in blue circle
                                 ZStack {
                                     Circle()
                                         .fill(accentColor)
-                                        .frame(width: 24, height: 24)
+                                        .frame(width: 32, height: 32)
                                     
-                                    Image(systemName: category.iconName)
-                                        .font(.system(size: 12))
+                                    Image(systemName: selectedCategory.iconName)
+                                        .font(.system(size: iconSize - 3))
                                         .foregroundColor(.white)
                                 }
                                 
-                                Text(category.rawValue)
+                                // Small spacer
+                                Spacer()
+                                    .frame(width: 10)
+                                
+                                // Category text
+                                Text(selectedCategory.rawValue)
                                     .foregroundColor(textColor)
+                                    .font(.system(size: 18))
+                                
+                                Spacer()
+                                
+                                // Dropdown indicator
+                                Image(systemName: "chevron.down")
+                                    .font(.caption)
+                                    .foregroundColor(secondaryTextColor)
                             }
-                            .tag(category)
+                        ) {
+                            ForEach(ExpenseCategory.allCases, id: \.self) { category in
+                                HStack {
+                                    ZStack {
+                                        Circle()
+                                            .fill(accentColor)
+                                            .frame(width: 24, height: 24)
+                                        
+                                        Image(systemName: category.iconName)
+                                            .font(.system(size: 12))
+                                            .foregroundColor(.white)
+                                    }
+                                    
+                                    Text(category.rawValue)
+                                        .foregroundColor(textColor)
+                                }
+                                .tag(category)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        .padding(.vertical, 8)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                
+                // Date Picker
+                cardView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Date")
+                            .font(.subheadline)
+                            .foregroundColor(secondaryTextColor)
+                        
+                        HStack {
+                            Image(systemName: "calendar")
+                                .font(.system(size: iconSize))
+                                .foregroundColor(accentColor)
+                                .frame(width: 30)
+                            
+                            DatePicker("", selection: $expenseDate, displayedComponents: .date)
+                                .datePickerStyle(CompactDatePickerStyle())
+                                .labelsHidden()
+                                .foregroundColor(textColor)
+                        }
+                        .padding(.vertical, 8)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+            
+            // Conditionally show additional fields for Savings category
+            if selectedCategory == .savings {
+                HStack(spacing: 12) {
+                    cardView {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Interest Rate")
+                                .font(.subheadline)
+                                .foregroundColor(secondaryTextColor)
+                            
+                            TextField("Ex: 1.5%", text: $interestRate)
+                                .keyboardType(.decimalPad)
+                                .foregroundColor(textColor)
+                                .padding(.vertical, 8)
+                                .onChange(of: interestRate) { newValue in
+                                    if !newValue.isEmpty {
+                                        expectedAnnualReturn = ""
+                                    }
+                                }
                         }
                     }
-                    .pickerStyle(MenuPickerStyle())
-                    .padding(.vertical, 8)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            
-            // Date Picker
-            cardView {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Date")
-                        .font(.subheadline)
-                        .foregroundColor(secondaryTextColor)
                     
-                    HStack {
-                        Image(systemName: "calendar")
-                            .font(.system(size: iconSize))
-                            .foregroundColor(accentColor)
-                            .frame(width: 30)
-                        
-                        DatePicker("", selection: $expenseDate, displayedComponents: .date)
-                            .datePickerStyle(CompactDatePickerStyle())
-                            .labelsHidden()
-                            .foregroundColor(textColor)
+                    cardView {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Expected Annual Return")
+                                .font(.subheadline)
+                                .foregroundColor(secondaryTextColor)
+                            
+                            TextField("Ex: 5%", text: $expectedAnnualReturn)
+                                .keyboardType(.decimalPad)
+                                .foregroundColor(textColor)
+                                .padding(.vertical, 8)
+                                .onChange(of: expectedAnnualReturn) { newValue in
+                                    if (!newValue.isEmpty) {
+                                        interestRate = ""
+                                    }
+                                }
+                        }
                     }
-                    .padding(.vertical, 8)
                 }
             }
-            .frame(maxWidth: .infinity)
         }
     }
     
@@ -363,6 +409,28 @@ struct AddExpenseView: View {
     }
     
     // MARK: - Actions
+    private func postNotifications() {
+        // Post a combination of notifications with different delays to ensure one works
+        NotificationCenter.default.post(
+            name: NSNotification.Name("RefreshBudgetDetail"),
+            object: nil
+        )
+        
+        NotificationCenter.default.post(
+            name: NSNotification.Name("ExpenseAdded"),
+            object: nil,
+            userInfo: ["budgetId": budgetId]
+        )
+        
+        // Also post a delayed notification to ensure it catches after view transitions
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            NotificationCenter.default.post(
+                name: NSNotification.Name("RefreshBudgetDetail"),
+                object: nil
+            )
+        }
+    }
+    
     private func saveExpense() {
         guard !name.isEmpty, let amountValue = Double(amount), amountValue > 0 else {
             return
@@ -381,10 +449,29 @@ struct AddExpenseView: View {
             date: expenseDate,
             isEssential: isEssential,
             notes: notes,
-            reminder: reminder
+            reminder: reminder,
+            interestRate: selectedCategory == .savings ? interestRate : nil,
+            expectedAnnualReturn: selectedCategory == .savings ? expectedAnnualReturn : nil
         )
         
+        // Debug print for troubleshooting
+        print("Adding expense: \(name) with amount: \(amountValue) to budget: \(budgetId)")
+        
+        // Add expense to the viewModel
         viewModel.addExpense(newExpense, to: budgetId)
+        
+        // Post all notifications to ensure something works
+        postNotifications()
+        
+        // Post an additional notification after a brief delay (after dismiss)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            NotificationCenter.default.post(
+                name: NSNotification.Name("RefreshBudgetDetail"),
+                object: nil
+            )
+        }
+        
+        // Dismiss the view
         dismiss()
     }
 }
@@ -393,15 +480,9 @@ struct AddExpenseView: View {
 #if DEBUG
 struct AddExpenseView_Previews: PreviewProvider {
     static var previews: some View {
-        // Just a placeholder that won't cause type conflicts
-        Text("Preview not enabled - enable in code")
-        
-        /*
-        // Enable this when needed:
-        AddExpenseView(budgetId: UUID())
+        AddExpenseView(budgetId: UUID(), startYear: 2023)
             .environmentObject(BudgetViewModel())
             .preferredColorScheme(.dark)
-        */
     }
 }
 #endif

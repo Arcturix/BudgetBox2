@@ -2,6 +2,8 @@ import SwiftUI
 
 struct CurrencyPicker: View {
     @Binding var selectedCurrency: Currency
+    @Binding var startMonth: Int
+    @Binding var startYear: Int
     
     var body: some View {
         Picker("Currency", selection: $selectedCurrency) {
@@ -14,30 +16,5 @@ struct CurrencyPicker: View {
             }
         }
         .pickerStyle(MenuPickerStyle())
-    }
-    
-    struct BudgetCard_Previews: PreviewProvider {
-        static var previews: some View {
-            ZStack {
-                Color(hex: "383C51")
-                    .ignoresSafeArea()
-                
-                BudgetCard(
-                    budget: Budget(
-                        name: "Sample Budget",
-                        amount: 950.00,
-                        currency: .gbp,
-                        iconName: "house.fill",
-                        colorHex: "FF5252",
-                        expenses: [
-                            Expense(name: "Rent", amount: 500, currency: .gbp, category: .housing)
-                        ]
-                    ),
-                    showValues: true
-                )
-                .padding()
-            }
-            .preferredColorScheme(.dark)
-        }
     }
 }

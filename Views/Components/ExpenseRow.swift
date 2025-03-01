@@ -4,8 +4,9 @@ struct ExpenseRow: View {
     let expense: Expense
     let showValues: Bool
     let budgetCurrency: Currency
+    let budgetColorHex: String // Add budget color hex
     @State private var showNotes = false
-    
+
     var body: some View {
         VStack(spacing: 0) {
             // Main row content
@@ -17,12 +18,12 @@ struct ExpenseRow: View {
                     .frame(width: 40, height: 40)
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(10)
-                
+
                 VStack(alignment: .leading) {
                     HStack {
                         Text(expense.name)
                             .font(.headline)
-                        
+
                         // Notes icon - shows if the expense has notes
                         if !expense.notes.isEmpty {
                             Image(systemName: "note.text")
@@ -30,44 +31,44 @@ struct ExpenseRow: View {
                                 .font(.caption)
                         }
                     }
-                    
+
                     Text(expense.category.rawValue)
                         .font(.caption)
                         .foregroundColor(.gray)
-                    
+
                     if expense.isEssential {
                         Text("Essential")
                             .font(.caption)
                             .foregroundColor(.blue)
                     }
                 }
-                
+
                 Spacer()
-                
+
                 VStack(alignment: .trailing) {
                     if showValues {
                         Text("-\(expense.amount.formatted(.currency(code: expense.currency.rawValue)))")
-                            .foregroundColor(.red)
+                            .foregroundColor(Color(hex: budgetColorHex)) // Use budget color for main values
                             .font(.headline)
-                        
+
                         // Show conversion if currencies differ
                         if expense.currency != budgetCurrency {
                             let convertedAmount = expense.convertedAmount(to: budgetCurrency)
                             Text("(\(convertedAmount.formatted(.currency(code: budgetCurrency.rawValue))))")
-                                .foregroundColor(.orange)
+                                .foregroundColor(.orange) // Keep conversion color as is
                                 .font(.caption)
                         }
                     } else {
                         Text("-****")
-                            .foregroundColor(.red)
+                            .foregroundColor(Color(hex: budgetColorHex)) // Use budget color for hidden values
                             .font(.headline)
                     }
-                    
+
                     HStack {
                         Text(expense.date.formatted(date: .abbreviated, time: .omitted))
                             .font(.caption)
                             .foregroundColor(.gray)
-                        
+
                         // Bell icon - shows if a reminder is set
                         if expense.reminder != nil {
                             Image(systemName: "bell.fill")
@@ -86,19 +87,19 @@ struct ExpenseRow: View {
                     }
                 }
             }
-            
+
             // Notes section (expandable)
             if showNotes && !expense.notes.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Divider()
                         .background(Color.gray.opacity(0.3))
-                    
+
                     HStack(alignment: .top) {
                         Image(systemName: "text.quote")
                             .foregroundColor(.gray)
                             .font(.caption)
                             .padding(.top, 2)
-                        
+
                         Text(expense.notes)
                             .font(.callout)
                             .foregroundColor(.white)

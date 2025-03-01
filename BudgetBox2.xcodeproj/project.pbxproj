@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA3AD1A62D733F1100556712 /* BudgetDetailComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3AD1A52D733F0500556712 /* BudgetDetailComponents.swift */; };
+		AA64CB882D7229BC006C4D5C /* EditBudgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA64CB872D7229B9006C4D5C /* EditBudgetView.swift */; };
 		AA7E29902D702BD200665EF3 /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA7E298F2D702BCA00665EF3 /* Currency.swift */; };
 		AAE312D42D6F7A1600ACD756 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAE312C62D6F789F00ACD756 /* Expense.swift */; };
 		AAE312D52D6F7A1A00ACD756 /* Budget.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAE312C52D6F788F00ACD756 /* Budget.swift */; };
@@ -45,7 +47,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		AA3AD1A52D733F0500556712 /* BudgetDetailComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetDetailComponents.swift; sourceTree = "<group>"; };
 		AA64CB862D72212D006C4D5C /* Notes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notes.swift; sourceTree = "<group>"; };
+		AA64CB872D7229B9006C4D5C /* EditBudgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditBudgetView.swift; sourceTree = "<group>"; };
 		AA7E298F2D702BCA00665EF3 /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 		AAE3128E2D6F783900ACD756 /* BudgetBox2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BudgetBox2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAE3129E2D6F783A00ACD756 /* BudgetBox2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BudgetBox2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -183,6 +187,7 @@
 		AAE312C22D6F787100ACD756 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				AA3AD1A52D733F0500556712 /* BudgetDetailComponents.swift */,
 				AAE312CE2D6F791200ACD756 /* ColorPicker.swift */,
 				AAE312CD2D6F790300ACD756 /* IconPicker.swift */,
 				AAE312CC2D6F78F800ACD756 /* CurrencyPicker.swift */,
@@ -200,6 +205,7 @@
 				AAE312D22D6F798400ACD756 /* AddExpenseView.swift */,
 				AAE312D12D6F794000ACD756 /* BudgetDetailView.swift */,
 				AAE312D02D6F792F00ACD756 /* AddBudgetView.swift */,
+				AA64CB872D7229B9006C4D5C /* EditBudgetView.swift */,
 				AAE312CF2D6F792100ACD756 /* HomeView.swift */,
 			);
 			path = Screens;
@@ -362,6 +368,7 @@
 				AAE312E02D6F7A3300ACD756 /* BudgetViewModel.swift in Sources */,
 				AAE312DB2D6F7A2E00ACD756 /* ColorPicker.swift in Sources */,
 				AAE312E12D6F7A3900ACD756 /* UserDefaultsManager.swift in Sources */,
+				AA3AD1A62D733F1100556712 /* BudgetDetailComponents.swift in Sources */,
 				AAE312E22D6F7A3900ACD756 /* Extentions.swift in Sources */,
 				AAE312E62D6F826500ACD756 /* EditExpenseView.swift in Sources */,
 				AAE312DC2D6F7A2E00ACD756 /* IconPicker.swift in Sources */,
@@ -372,6 +379,7 @@
 				AAE312D42D6F7A1600ACD756 /* Expense.swift in Sources */,
 				AAE312D82D6F7A2800ACD756 /* HomeView.swift in Sources */,
 				AAE312D92D6F7A2800ACD756 /* BudgetDetailView.swift in Sources */,
+				AA64CB882D7229BC006C4D5C /* EditBudgetView.swift in Sources */,
 				AAE312DA2D6F7A2800ACD756 /* AddBudgetView.swift in Sources */,
 				AA7E29902D702BD200665EF3 /* Currency.swift in Sources */,
 				AAE312D62D6F7A1E00ACD756 /* ProfileView.swift in Sources */,
@@ -540,6 +548,8 @@
 				DEVELOPMENT_TEAM = YJKZ9G75BM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = BudgetBox;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -569,6 +579,8 @@
 				DEVELOPMENT_TEAM = YJKZ9G75BM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = BudgetBox;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

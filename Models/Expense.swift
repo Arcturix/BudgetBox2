@@ -11,6 +11,8 @@ struct Expense: Identifiable, Codable, Hashable, Equatable {
     var isEssential: Bool = false
     var notes: String = ""
     var reminder: Reminder?
+    var interestRate: String? // New property for interest rate
+    var expectedAnnualReturn: String? // New property for expected annual return
     
     // Implement Hashable
     func hash(into hasher: inout Hasher) {
@@ -56,7 +58,7 @@ enum ExpenseCategory: String, Codable, CaseIterable, Hashable {
     
     var iconName: String {
         switch self {
-        case.savings: return "party.popper.fill"
+        case .savings: return "party.popper.fill"
         case .housing: return "house.fill"
         case .food: return "fork.knife"
         case .transportation: return "car.fill"
@@ -71,7 +73,7 @@ enum ExpenseCategory: String, Codable, CaseIterable, Hashable {
     
     var colorHex: String {
         switch self {
-        case.savings: return "FFC107"   //Amber
+        case .savings: return "FFC107"   // Amber
         case .housing: return "FF5252" // Red
         case .food: return "4CAF50"    // Green
         case .transportation: return "2196F3" // Blue

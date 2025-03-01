@@ -9,6 +9,8 @@ struct Budget: Identifiable, Codable, Hashable, Equatable {
     var colorHex: String
     var isMonthly: Bool = true
     var expenses: [Expense] = []
+    var startMonth: Int
+    var startYear: Int
     
     
     // Implement Hashable

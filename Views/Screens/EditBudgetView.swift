@@ -1,17 +1,30 @@
 import SwiftUI
 
-struct AddBudgetView: View {
+struct EditBudgetView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var viewModel: BudgetViewModel
     
-    @State private var name = ""
-    @State private var amount = ""
-    @State private var selectedCurrency = Currency.usd
-    @State private var selectedIcon = "house.fill"
-    @State private var selectedColor = "FF5252"
-    @State private var isMonthly = true
-    @State private var selectedMonth = Calendar.current.component(.month, from: Date())
-    @State private var selectedYear = Calendar.current.component(.year, from: Date())
+    @State var budget: Budget
+    @State private var name: String
+    @State private var amount: String
+    @State private var selectedCurrency: Currency
+    @State private var selectedIcon: String
+    @State private var selectedColor: String
+    @State private var isMonthly: Bool
+    @State private var selectedMonth: Int
+    @State private var selectedYear: Int
+    
+    init(budget: Budget) {
+        self._budget = State(initialValue: budget)
+        self._name = State(initialValue: budget.name)
+        self._amount = State(initialValue: String(budget.amount))
+        self._selectedCurrency = State(initialValue: budget.currency)
+        self._selectedIcon = State(initialValue: budget.iconName)
+        self._selectedColor = State(initialValue: budget.colorHex)
+        self._isMonthly = State(initialValue: budget.isMonthly)
+        self._selectedMonth = State(initialValue: budget.startMonth)
+        self._selectedYear = State(initialValue: budget.startYear)
+    }
     
     var body: some View {
         NavigationView {
@@ -127,7 +140,7 @@ struct AddBudgetView: View {
                     .padding()
                 }
             }
-            .navigationTitle("Add Budget")
+            .navigationTitle("Edit Budget")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -145,18 +158,42 @@ struct AddBudgetView: View {
             return
         }
         
-        let newBudget = Budget(
+        let updatedBudget = Budget(
+            id: budget.id,
             name: name,
             amount: amountValue,
             currency: selectedCurrency,
             iconName: selectedIcon,
             colorHex: selectedColor,
             isMonthly: isMonthly,
+            expenses: budget.expenses,
             startMonth: selectedMonth,
             startYear: selectedYear
         )
         
-        viewModel.addBudget(newBudget)
+        viewModel.updateBudget(updatedBudget)
         dismiss()
     }
 }
+
+#if DEBUG
+struct EditBudgetView_Previews: PreviewProvider {
+    static var previews: some View {
+        // Create a sample budget for preview
+        let sampleBudget = Budget(
+            name: "Sample Budget",
+            amount: 500.0,
+            currency: .usd,
+            iconName: "house.fill",
+            colorHex: "FF5252",
+            isMonthly: true,
+            expenses: [],
+            startMonth: 1,
+            startYear: 2023
+        )
+        
+        return EditBudgetView(budget: sampleBudget)
+            .environmentObject(BudgetViewModel())
+    }
+}
+#endif

@@ -2,6 +2,8 @@ import SwiftUI
 
 struct IconPicker: View {
     @Binding var selectedIcon: String
+    @Binding var startMonth: Int
+    @Binding var startYear: Int
     
     let icons = [
         "house.fill", "car.fill", "airplane", "cart.fill",
@@ -50,7 +52,6 @@ struct IconPicker: View {
         "lock.circle.fill",
         "building.columns",
         "building.columns.fill",
-
     ]
     
     let columns = [
@@ -75,30 +76,5 @@ struct IconPicker: View {
             }
         }
         .padding(.vertical)
-    }
-    
-    struct BudgetCard_Previews: PreviewProvider {
-        static var previews: some View {
-            ZStack {
-                Color(hex: "383C51")
-                    .ignoresSafeArea()
-                
-                BudgetCard(
-                    budget: Budget(
-                        name: "Sample Budget",
-                        amount: 950.00,
-                        currency: .gbp,
-                        iconName: "house.fill",
-                        colorHex: "FF5252",
-                        expenses: [
-                            Expense(name: "Rent", amount: 500, currency: .gbp, category: .housing)
-                        ]
-                    ),
-                    showValues: true
-                )
-                .padding()
-            }
-            .preferredColorScheme(.dark)
-        }
     }
 }
