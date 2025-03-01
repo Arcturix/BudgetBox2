@@ -58,7 +58,7 @@ enum ExpenseCategory: String, Codable, CaseIterable, Hashable {
     
     var iconName: String {
         switch self {
-        case .savings: return "party.popper.fill"
+        case .savings: return "chart.line.uptrend.xyaxis.circle.fill"
         case .housing: return "house.fill"
         case .food: return "fork.knife"
         case .transportation: return "car.fill"

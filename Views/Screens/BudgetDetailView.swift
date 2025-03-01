@@ -1,9 +1,32 @@
 import SwiftUI
+// Helper extension to avoid Color(hex:) conflicts
+extension UIColor {
+    convenience init(hexString: String) {
+        let hex = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int = UInt64()
+        Scanner(string: hex).scanHexInt64(&int)
+        let a, r, g, b: UInt64
+        switch hex.count {
+        case 3: // RGB (12-bit)
+            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+        case 6: // RGB (24-bit)
+            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: // ARGB (32-bit)
+            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+        default:
+            (a, r, g, b) = (255, 0, 0, 0)
+        }
+        self.init(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: CGFloat(a) / 255)
+    }
+}
 
 struct BudgetDetailView: View {
     @EnvironmentObject var viewModel: BudgetViewModel
     @State var budget: Budget
-
+    
+    // MARK: - Tab Selection State
+    @State private var selectedTab = 0
+    
     // MARK: - Sheet State Management
     @State private var currentEditExpense: Expense?
     @State private var isShowingSheet = false
@@ -31,56 +54,39 @@ struct BudgetDetailView: View {
         ZStack {
             BudgetDetailBackground()
             
-            VStack(alignment: .leading, spacing: 10) {
-                BudgetDetailHeader(budget: budget)
-                
-                BudgetSummaryCards(
-                    budget: budget,
-                    showValuesEnabled: viewModel.showValuesEnabled,
-                    showTotalExpense: showTotalExpense,
-                    onToggleShowTotalExpense: {
-                        withAnimation {
-                            showTotalExpense.toggle()
+            VStack(alignment: .leading, spacing: 0) {
+                // Common header for both tabs
+                VStack(alignment: .leading, spacing: 10) {
+                    BudgetDetailHeader(budget: budget)
+                    
+                    BudgetSummaryCards(
+                        budget: budget,
+                        showValuesEnabled: viewModel.showValuesEnabled,
+                        showTotalExpense: showTotalExpense,
+                        onToggleShowTotalExpense: {
+                            withAnimation {
+                                showTotalExpense.toggle()
+                            }
                         }
-                    }
-                )
+                    )
+                    
+                    BudgetPeriodInfo(startMonth: budget.startMonth, startYear: budget.startYear)
+                    
+                    Spacer().frame(height: 20)
+                }
+                .padding(.bottom, 10)
                 
-                BudgetPeriodInfo(startMonth: budget.startMonth, startYear: budget.startYear)
+                // Tab View for Expenses, Analysis, and Savings with disabled swiping
+                if selectedTab == 0 {
+                    expensesTabView
+                } else if selectedTab == 1 {
+                    AnalysisView(budget: budget)
+                } else {
+                    SavingsView(budget: budget)
+                }
                 
-                Spacer().frame(height: 20)
-                
-                BudgetItemsList(
-                    expenses: sortedExpenses,
-                    isEmpty: budget.expenses.isEmpty,
-                    itemCount: budget.expenses.count,
-                    budgetItemLimitEnabled: viewModel.budgetItemLimitEnabled,
-                    showValuesEnabled: viewModel.showValuesEnabled,
-                    budgetCurrency: budget.currency,
-                    budgetColorHex: budget.colorHex, // Pass budget color hex
-                    onDeleteExpense: { expenseId in
-                        viewModel.deleteExpense(id: expenseId, from: budget.id)
-                        updateBudgetFromViewModel()
-                        refreshID = UUID() // Force refresh
-                    },
-                    onEditExpense: { expense in
-                        currentEditExpense = expense
-                    },
-                    refreshID: refreshID
-                )
-                
-                Spacer()
-                
-                AddBudgetItemButton(
-                    colorHex: budget.colorHex,
-                    isDisabled: isAddButtonDisabled,
-                    budgetItemLimitEnabled: viewModel.budgetItemLimitEnabled,
-                    itemCount: budget.expenses.count,
-                    onAddItem: {
-                        expenseToEdit = nil
-                        sheetMode = .add
-                        isShowingSheet = true
-                    }
-                )
+                // Custom Tab Bar
+                customTabBar
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
@@ -192,6 +198,120 @@ struct BudgetDetailView: View {
         .onChange(of: viewModel.budgets) { _, _ in
             print("ViewModel budgets changed")
             updateBudgetFromViewModel()
+        }
+    }
+    
+    // MARK: - Tab Views
+    
+    private var expensesTabView: some View {
+        VStack {
+            BudgetItemsList(
+                expenses: sortedExpenses,
+                isEmpty: budget.expenses.isEmpty,
+                itemCount: budget.expenses.count,
+                budgetItemLimitEnabled: viewModel.budgetItemLimitEnabled,
+                showValuesEnabled: viewModel.showValuesEnabled,
+                budgetCurrency: budget.currency,
+                budgetColorHex: budget.colorHex,
+                onDeleteExpense: { expenseId in
+                    viewModel.deleteExpense(id: expenseId, from: budget.id)
+                    updateBudgetFromViewModel()
+                    refreshID = UUID() // Force refresh
+                },
+                onEditExpense: { expense in
+                    currentEditExpense = expense
+                },
+                refreshID: refreshID
+            )
+            
+            Spacer()
+            
+            AddBudgetItemButton(
+                colorHex: budget.colorHex,
+                isDisabled: isAddButtonDisabled,
+                budgetItemLimitEnabled: viewModel.budgetItemLimitEnabled,
+                itemCount: budget.expenses.count,
+                onAddItem: {
+                    expenseToEdit = nil
+                    sheetMode = .add
+                    isShowingSheet = true
+                }
+            )
+            .padding(.bottom)
+        }
+    }
+    
+    private var customTabBar: some View {
+        HStack {
+            Spacer()
+            
+            // Budget Tab
+            TabButton(
+                title: "Budget",
+                icon: "list.bullet",
+                isSelected: selectedTab == 0,
+                colorHex: budget.colorHex,
+                action: { selectedTab = 0 }
+            )
+            
+            Spacer()
+            
+            // Analysis Tab
+            TabButton(
+                title: "Analysis",
+                icon: "chart.pie.fill",
+                isSelected: selectedTab == 1,
+                colorHex: budget.colorHex,
+                action: { selectedTab = 1 }
+            )
+            
+            Spacer()
+            
+            // Savings Tab
+            TabButton(
+                title: "Savings",
+                icon: "chart.line.uptrend.xyaxis",
+                isSelected: selectedTab == 2,
+                colorHex: budget.colorHex,
+                action: { selectedTab = 2 }
+            )
+            
+            Spacer()
+        }
+        .padding(.vertical, 8)
+        .background(Color(.secondarySystemBackground))
+    }
+    
+    // MARK: - Custom Tab Button
+    private struct TabButton: View {
+        let title: String
+        let icon: String
+        let isSelected: Bool
+        let colorHex: String
+        let action: () -> Void
+        
+        var body: some View {
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    action()
+                }
+            }) {
+                VStack(spacing: 4) {
+                    Image(systemName: icon)
+                        .font(.system(size: 20))
+                    Text(title)
+                        .font(.caption)
+                }
+                .foregroundColor(isSelected ? Color(UIColor(hexString: colorHex)) : .gray)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 16)
+                .background(
+                    isSelected ?
+                        Color(UIColor(hexString: colorHex)).opacity(0.2) :
+                        Color.clear
+                )
+                .cornerRadius(8)
+            }
         }
     }
 

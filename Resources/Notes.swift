@@ -6,3 +6,6 @@
 // Update value on homeview
 // homeview, change the percentage slider to 100%
 // split the style from the functionality. 
+
+
+//update savings to use the currency of the budget. 
