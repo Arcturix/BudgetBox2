@@ -5,17 +5,17 @@ struct BudgetCard: View {
     let showValues: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: budget.iconName)
                     .foregroundColor(Color(hex: budget.colorHex))
-                    .font(.title2)
+                    .font(.title)
                 
                 VStack(alignment: .leading) {
                     Text(budget.name)
-                        .font(.headline)
+                        .font(.title2)
                     Text("Monthly Budget")
-                        .font(.caption)
+                        .font(.body)
                         .foregroundColor(.gray)
                 }
                 
@@ -23,11 +23,11 @@ struct BudgetCard: View {
                 
                 if showValues {
                     Text("\(budget.amount.formatted(.currency(code: budget.currency.rawValue)))")
-                        .font(.title3)
+                        .font(.title)
                         .bold()
                 } else {
                     Text("****")
-                        .font(.title3)
+                        .font(.title)
                         .bold()
                 }
             }
@@ -36,18 +36,18 @@ struct BudgetCard: View {
             ZStack(alignment: .leading) {
                 Rectangle()
                     .foregroundColor(Color.gray.opacity(0.3))
-                    .frame(height: 10)
-                    .cornerRadius(5)
+                    .frame(height: 15)
+                    .cornerRadius(7.5)
                 
                 Rectangle()
                     .foregroundColor(Color(hex: budget.colorHex))
-                    .frame(width: max(0, CGFloat(budget.percentRemaining) / 100 * UIScreen.main.bounds.width * 0.8), height: 10)
-                    .cornerRadius(5)
+                    .frame(width: max(0, CGFloat(budget.percentRemaining) / 100 * UIScreen.main.bounds.width * 0.8), height: 15)
+                    .cornerRadius(7.5)
             }
             
             HStack {
                 Text("Remaining")
-                    .font(.caption)
+                    .font(.body)
                     .foregroundColor(.gray)
                 
                 Spacer()
@@ -55,20 +55,20 @@ struct BudgetCard: View {
                 if showValues {
                     Text("\(budget.remainingAmount.formatted(.currency(code: budget.currency.rawValue)))")
                         .foregroundColor(budget.remainingAmount > 0 ? .green : .red)
-                        .font(.headline)
+                        .font(.title2)
                 } else {
                     Text("****")
                         .foregroundColor(.green)
-                        .font(.headline)
+                        .font(.title2)
                 }
                 
                 Text("\(budget.percentRemaining)%")
-                    .font(.caption)
+                    .font(.body)
                     .foregroundColor(.gray)
             }
         }
-        .padding()
+        .padding(20)
         .background(Color.gray.opacity(0.1))
-        .cornerRadius(15)
+        .cornerRadius(20)
     }
 }

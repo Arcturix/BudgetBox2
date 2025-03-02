@@ -55,27 +55,6 @@ struct AnalysisView: View {
         }
     }
     
-    /// Formats currency based on budget settings
-    func formatAmount(_ amount: Double) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = budget.currency.rawValue
-        
-        return formatter.string(from: NSNumber(value: amount)) ?? "$0.00"
-    }
-    
-    // Calculate total expenses with currency conversion
-    var totalExpenses: Double {
-        budget.expenses.reduce(0) { sum, expense in
-            sum + convertedAmount(for: expense)
-        }
-    }
-    
-    // Calculate remaining budget
-    var remainingBudget: Double {
-        max(0, budget.amount - totalExpenses)
-    }
-    
     // MARK: - Body
     
     var body: some View {
@@ -159,77 +138,6 @@ struct AnalysisView: View {
                                 )
                             }
                         }
-                        .padding(.horizontal)
-                        
-                        // Budget usage summary
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("Budget Usage")
-                                .foregroundColor(.white)
-                                .font(.headline)
-                            
-                            HStack {
-                                Text("Total Spent:")
-                                    .foregroundColor(.gray)
-                                Spacer()
-                                Text(formatAmount(totalExpenses))
-                                    .bold()
-                                    .foregroundColor(.white)
-                            }
-                            
-                            HStack {
-                                Text("Budget Remaining:")
-                                    .foregroundColor(.gray)
-                                Spacer()
-                                Text(formatAmount(remainingBudget))
-                                    .bold()
-                                    .foregroundColor(remainingBudget > 0 ? .green : .red)
-                            }
-                            
-                            // Progress bar
-                            VStack(alignment: .leading, spacing: 8) {
-                                GeometryReader { geometry in
-                                    ZStack(alignment: .leading) {
-                                        // Background
-                                        Capsule()
-                                            .fill(Color.gray.opacity(0.2))
-                                            .frame(height: 12)
-                                        
-                                        // Progress
-                                        Capsule()
-                                            .fill(
-                                                LinearGradient(
-                                                    gradient: Gradient(colors: [
-                                                        Color(hex: budget.colorHex),
-                                                        Color(hex: budget.colorHex).opacity(0.7)
-                                                    ]),
-                                                    startPoint: .leading,
-                                                    endPoint: .trailing
-                                                )
-                                            )
-                                            .frame(
-                                                width: min(geometry.size.width * CGFloat(totalExpenses / budget.amount), geometry.size.width),
-                                                height: 12
-                                            )
-                                    }
-                                }
-                                .frame(height: 12)
-                                
-                                HStack {
-                                    Text("0%")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                    
-                                    Spacer()
-                                    
-                                    Text("100%")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                }
-                            }
-                        }
-                        .padding()
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(16)
                         .padding(.horizontal)
                         .padding(.bottom, 24)
                     }
@@ -335,8 +243,6 @@ struct CategoryCard: View {
         )
     }
 }
-
-// Note: Using existing Color(hex:) and Currency.symbol extensions
 
 // MARK: - Preview Provider
 

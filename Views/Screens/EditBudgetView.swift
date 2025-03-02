@@ -77,31 +77,38 @@ struct EditBudgetView: View {
                             .padding(.vertical, 8)
                         }
                         
-                        // Start month picker
-                        VStack(alignment: .leading) {
-                            Text("Start Month")
-                                .foregroundColor(.white)
-                            
-                            Picker("Start Month", selection: $selectedMonth) {
-                                ForEach(1..<13) { month in
-                                    Text(DateFormatter().monthSymbols[month - 1]).tag(month)
+                        // Start month and year picker
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text("Start Month")
+                                    .foregroundColor(.white)
+                                
+                                Picker("Start Month", selection: $selectedMonth) {
+                                    ForEach(1..<13) { month in
+                                        Text(DateFormatter().monthSymbols[month - 1]).tag(month)
+                                    }
                                 }
+                                .pickerStyle(MenuPickerStyle())
+                                .padding(.vertical, 8)
+                                .frame(maxWidth: .infinity)
                             }
-                            .pickerStyle(MenuPickerStyle())
-                            .padding(.vertical, 8)
-                        }
-                        
-                        // Display start year
-                        VStack(alignment: .leading) {
-                            Text("Start Year")
-                                .foregroundColor(.white)
                             
-                            Text("\(selectedYear)")
-                                .padding()
-                                .background(Color.gray.opacity(0.2))
-                                .cornerRadius(10)
-                                .foregroundColor(.white)
+                            VStack(alignment: .leading) {
+                                Text("Start Year")
+                                    .foregroundColor(.white)
+                                
+                                Picker("Start Year", selection: $selectedYear) {
+                                    ForEach(2000...Calendar.current.component(.year, from: Date()) + 10, id: \.self) { year in
+                                        Text(String(format: "%d", year)).tag(year)
+                                    }
+                                }
+                                .pickerStyle(MenuPickerStyle())
+                                .padding(.vertical, 8)
+                                .frame(maxWidth: .infinity)
+                            }
                         }
+                        .frame(maxWidth: .infinity)
+
                         
                         // Icon picker
                         VStack(alignment: .leading) {

@@ -1,21 +1,34 @@
 import SwiftUI
 
-// Simple sparkline that doesn't depend on external methods
+// Modified sparkline that shows both contributions and current value
 private func simpleSparklineView(color: Color) -> some View {
-    Path { path in
-        // Start at bottom left
-        path.move(to: CGPoint(x: 0, y: 30))
+    ZStack {
+        // Contributions line (solid)
+        Path { path in
+            path.move(to: CGPoint(x: 0, y: 30))
+            path.addLine(to: CGPoint(x: 20, y: 24))
+            path.addLine(to: CGPoint(x: 40, y: 18))
+            path.addLine(to: CGPoint(x: 60, y: 12))
+            path.addLine(to: CGPoint(x: 80, y: 6))
+            path.addLine(to: CGPoint(x: 100, y: 0))
+        }
+        .stroke(color, lineWidth: 2)
         
-        // Create a simple upward curve - values are hardcoded
-        // to avoid any scope issues
-        path.addLine(to: CGPoint(x: 0, y: 30))
-        path.addLine(to: CGPoint(x: 20, y: 25))
-        path.addLine(to: CGPoint(x: 40, y: 20))
-        path.addLine(to: CGPoint(x: 60, y: 15))
-        path.addLine(to: CGPoint(x: 80, y: 8))
-        path.addLine(to: CGPoint(x: 100, y: 0))
+        // Current value line (dotted)
+        Path { path in
+            path.move(to: CGPoint(x: 0, y: 30))
+            path.addLine(to: CGPoint(x: 20, y: 23))
+            path.addLine(to: CGPoint(x: 40, y: 16))
+            path.addLine(to: CGPoint(x: 60, y: 9))
+            path.addLine(to: CGPoint(x: 80, y: 2))
+            path.addLine(to: CGPoint(x: 100, y: -5))  // Goes slightly higher to show growth
+        }
+        .stroke(color, style: StrokeStyle(
+            lineWidth: 2,
+            dash: [4, 4]  // Creates dotted line effect
+        ))
+        .opacity(0.6)  // Makes the dotted line slightly transparent
     }
-    .stroke(color, lineWidth: 2)
 }
 
 struct SavingsView: View {
@@ -48,7 +61,7 @@ struct SavingsView: View {
             VStack(alignment: .leading, spacing: 16) {
                 // Header
                 HStack {
-                    Text("Savings Analysis")
+                    Text("Savings Overview")
                         .foregroundColor(.white)
                         .font(.headline)
                     
@@ -76,7 +89,7 @@ struct SavingsView: View {
             .padding(.bottom, 24)
         }
         .background(Color(hex: "383C51"))
-        .onChange(of: savingsItems) { newValue in
+        .onChange(of: savingsItems) { oldValue, newValue in
             // If the selected item is no longer in the list, deselect it
             if let selected = selectedSavingsItem, !newValue.contains(where: { $0.id == selected.id }) {
                 selectedSavingsItem = nil
@@ -159,8 +172,7 @@ struct SavingsView: View {
                     .lineLimit(1)
                 
                 // Current value
-                let currentValue = calculateCurrentValue(for: item)
-                Text("\(item.currency.symbol)\(currentValue, specifier: "%.2f")")
+                Text("\(budget.currency.symbol)\(calculateCurrentValue(for: item), specifier: "%.2f")")
                     .font(.title3)
                     .bold()
                     .foregroundColor(Color(hex: budget.colorHex))
@@ -171,7 +183,7 @@ struct SavingsView: View {
                         .foregroundColor(.green)
                         .font(.caption)
                     
-                    Text("\(item.currency.symbol)\(item.amount, specifier: "%.2f")/mo")
+                    Text("\(budget.currency.symbol)\(item.amount, specifier: "%.2f")/mo")
                         .font(.caption)
                         .foregroundColor(.gray)
                 }
@@ -192,7 +204,7 @@ struct SavingsView: View {
                 .stroke(Color.yellow.opacity(0.5), lineWidth: 1)
         )
     }
-    
+
     private func savingsDetailsView(for item: Expense) -> some View {
         VStack(alignment: .leading, spacing: 20) {
             // Only show back button when there are multiple savings items
@@ -242,7 +254,7 @@ struct SavingsView: View {
                             .font(.caption)
                             .foregroundColor(.gray)
                         
-                        Text("\(item.currency.symbol)\(item.amount, specifier: "%.2f")")
+                        Text("\(budget.currency.symbol)\(item.amount, specifier: "%.2f")")
                             .font(.headline)
                             .foregroundColor(.white)
                     }
@@ -283,7 +295,7 @@ struct SavingsView: View {
                     .foregroundColor(.white)
                 
                 HStack {
-                    Text("\(item.currency.symbol)\(currentValue, specifier: "%.2f")")
+                    Text("\(budget.currency.symbol)\(currentValue, specifier: "%.2f")")
                         .font(.title)
                         .fontWeight(.bold)
                         .foregroundColor(Color(hex: budget.colorHex))
@@ -313,7 +325,7 @@ struct SavingsView: View {
                             .font(.caption)
                             .foregroundColor(.gray)
                         
-                        Text("\(item.currency.symbol)\(contributions, specifier: "%.2f")")
+                        Text("\(budget.currency.symbol)\(contributions, specifier: "%.2f")")
                             .font(.subheadline)
                             .foregroundColor(.white)
                     }
@@ -325,7 +337,7 @@ struct SavingsView: View {
                             .font(.caption)
                             .foregroundColor(.gray)
                         
-                        Text("\(item.currency.symbol)\(currentValue - contributions, specifier: "%.2f")")
+                        Text("\(budget.currency.symbol)\(currentValue - contributions, specifier: "%.2f")")
                             .font(.subheadline)
                             .foregroundColor(.green)
                     }
@@ -374,7 +386,7 @@ struct SavingsView: View {
                         Spacer()
                         
                         VStack(alignment: .trailing, spacing: 4) {
-                            Text("\(item.currency.symbol)\(projection, specifier: "%.2f")")
+                            Text("\(budget.currency.symbol)\(projection, specifier: "%.2f")")
                                 .font(.headline)
                                 .foregroundColor(Color(hex: budget.colorHex))
                         }
@@ -389,7 +401,7 @@ struct SavingsView: View {
                             
                             Spacer()
                             
-                            Text("\(item.currency.symbol)\(totalContributions, specifier: "%.2f")")
+                            Text("\(budget.currency.symbol)\(totalContributions, specifier: "%.2f")")
                                 .font(.subheadline)
                                 .foregroundColor(.white)
                         }
@@ -401,7 +413,7 @@ struct SavingsView: View {
                             
                             Spacer()
                             
-                            Text("\(item.currency.symbol)\(interestGained, specifier: "%.2f")")
+                            Text("\(budget.currency.symbol)\(interestGained, specifier: "%.2f")")
                                 .font(.subheadline)
                                 .foregroundColor(.green)
                         }
@@ -502,8 +514,6 @@ struct SavingsView: View {
     }
 }
 
-
-
 // MARK: - Preview Provider
 
 struct SavingsView_Previews: PreviewProvider {
@@ -512,7 +522,7 @@ struct SavingsView_Previews: PreviewProvider {
             Expense(
                 name: "Retirement Fund",
                 amount: 200.0,
-                currency: .usd,
+                currency: .eur,  // Changed to match budget currency
                 category: .savings,
                 date: Calendar.current.date(byAdding: .month, value: -6, to: Date())!,
                 isEssential: true,
@@ -521,7 +531,7 @@ struct SavingsView_Previews: PreviewProvider {
             Expense(
                 name: "Emergency Fund",
                 amount: 100.0,
-                currency: .usd,
+                currency: .eur,  // Changed to match budget currency
                 category: .savings,
                 date: Calendar.current.date(byAdding: .month, value: -3, to: Date())!,
                 isEssential: true,
@@ -532,7 +542,7 @@ struct SavingsView_Previews: PreviewProvider {
         let sampleBudget = Budget(
             name: "Monthly Budget",
             amount: 1000.0,
-            currency: .usd,
+            currency: .eur,  // Changed to match system preferences
             iconName: "dollarsign.circle",
             colorHex: "A169F7",
             isMonthly: true,
@@ -548,7 +558,7 @@ struct SavingsView_Previews: PreviewProvider {
         let singleItemBudget = Budget(
             name: "Monthly Budget",
             amount: 1000.0,
-            currency: .usd,
+            currency: .eur,  // Changed to match system preferences
             iconName: "dollarsign.circle",
             colorHex: "A169F7",
             isMonthly: true,

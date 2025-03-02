@@ -53,7 +53,7 @@ enum ExpenseCategory: String, Codable, CaseIterable, Hashable {
     case entertainment = "Entertainment"
     case healthcare = "Healthcare"
     case shopping = "Shopping"
-    case personal = "Personal"
+    case subscriptions = "Subscriptions" // Changed from personal
     case other = "Other"
     
     var iconName: String {
@@ -63,10 +63,10 @@ enum ExpenseCategory: String, Codable, CaseIterable, Hashable {
         case .food: return "fork.knife"
         case .transportation: return "car.fill"
         case .utilities: return "bolt.fill"
-        case .entertainment: return "tv.fill"
+        case .entertainment: return "gamecontroller.fill"
         case .healthcare: return "heart.fill"
         case .shopping: return "bag.fill"
-        case .personal: return "person.fill"
+        case .subscriptions: return "tv.fill" // Changed from personal
         case .other: return "ellipsis.circle.fill"
         }
     }
@@ -81,7 +81,7 @@ enum ExpenseCategory: String, Codable, CaseIterable, Hashable {
         case .entertainment: return "9C27B0" // Purple
         case .healthcare: return "E91E63" // Pink
         case .shopping: return "FF9800" // Orange
-        case .personal: return "607D8B" // Blue Grey
+        case .subscriptions: return "607D8B" // Blue Grey // Changed from personal
         case .other: return "795548"    // Brown
         }
     }

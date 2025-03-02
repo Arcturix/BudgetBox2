@@ -12,7 +12,7 @@ struct IconPicker: View {
         "film.fill", "gamecontroller.fill", "graduationcap.fill",
         "heart.fill", "cross.fill", "pills.fill",
         "dollarsign.circle.fill", "eurosign.circle.fill",
-        "sterlingsign.circle.fill", "yensign.circle.fill",
+        "sterlingsign.circle.fill", "yensign.circle.fill", "tv.fill",
         
         // BABY/CHILDREN RELATED ICONS
         // iOS 15+

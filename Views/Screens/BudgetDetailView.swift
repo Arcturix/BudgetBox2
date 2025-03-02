@@ -70,7 +70,8 @@ struct BudgetDetailView: View {
                         }
                     )
                     
-                    BudgetPeriodInfo(startMonth: budget.startMonth, startYear: budget.startYear)
+                    // THIS SHOWS / HIDES THE START MONTH AND START YEAR
+                    //BudgetPeriodInfo(startMonth: budget.startMonth, startYear: budget.startYear)
                     
                     Spacer().frame(height: 20)
                 }

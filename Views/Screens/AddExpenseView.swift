@@ -23,6 +23,7 @@ struct AddExpenseView: View {
     @State private var showAdvancedSettings = false
     @State private var interestRate: String = ""
     @State private var expectedAnnualReturn: String = ""
+    @State private var currentSavingsBalance: Double = 0.0
     
     // MARK: - UI Constants
     private let backgroundColor = Color(hex: "282C3E")
@@ -251,6 +252,20 @@ struct AddExpenseView: View {
                                     }
                                 }
                         }
+                    }
+                }
+                
+                // New Current Balance Field
+                cardView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Current Balance")
+                            .font(.subheadline)
+                            .foregroundColor(secondaryTextColor)
+                        
+                        TextField("Ex: 1000.00", value: $currentSavingsBalance, formatter: NumberFormatter())
+                            .keyboardType(.decimalPad)
+                            .foregroundColor(textColor)
+                            .padding(.vertical, 8)
                     }
                 }
             }
