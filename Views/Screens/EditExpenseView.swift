@@ -24,6 +24,7 @@ struct EditExpenseView: View {
     @State private var showAdvancedSettings = true // Default to true for edit view
     @State private var interestRate: String
     @State private var expectedAnnualReturn: String
+    @State private var currentBalance: Double
 
     // MARK: - UI Constants
     private let backgroundColor = Color(hex: "282C3E")
@@ -53,6 +54,7 @@ struct EditExpenseView: View {
         _reminderFrequency = State(initialValue: expense.reminder?.frequency ?? .once)
         _interestRate = State(initialValue: expense.interestRate ?? "")
         _expectedAnnualReturn = State(initialValue: expense.expectedAnnualReturn ?? "")
+        _currentBalance = State(initialValue: expense.currentBalance ?? 0.0)
     }
 
     // MARK: - Main View
@@ -216,318 +218,346 @@ struct EditExpenseView: View {
                                 }
                                 .tag(category)
                             }
-                        }
-                        .pickerStyle(MenuPickerStyle())
-                        .padding(.vertical, 8)
-                    }
-                }
-                .frame(maxWidth: .infinity)
+                                                    }
+                                                    .pickerStyle(MenuPickerStyle())
+                                                    .padding(.vertical, 8)
+                                                }
+                                            }
+                                            .frame(maxWidth: .infinity)
 
-                // Date Picker
-                cardView {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Date")
-                            .font(.subheadline)
-                            .foregroundColor(secondaryTextColor)
+                                            // Date Picker
+                                            cardView {
+                                                VStack(alignment: .leading, spacing: 8) {
+                                                    Text("Date")
+                                                        .font(.subheadline)
+                                                        .foregroundColor(secondaryTextColor)
 
-                        HStack {
-                            Image(systemName: "calendar")
-                                .font(.system(size: iconSize))
-                                .foregroundColor(accentColor)
-                                .frame(width: 30)
+                                                    HStack {
+                                                        Image(systemName: "calendar")
+                                                            .font(.system(size: iconSize))
+                                                            .foregroundColor(accentColor)
+                                                            .frame(width: 30)
 
-                            DatePicker("", selection: $expenseDate, displayedComponents: .date)
-                                .datePickerStyle(CompactDatePickerStyle())
-                                .labelsHidden()
-                                .foregroundColor(textColor)
-                        }
-                        .padding(.vertical, 8)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-            }
-        }
-    }
-
-    // Advanced Settings Section
-    private var advancedSettingsSection: some View {
-        cardView {
-            VStack(alignment: .leading, spacing: 16) {
-                // Advanced Settings Header (Clickable)
-                Button(action: {
-                    withAnimation {
-                        showAdvancedSettings.toggle()
-                    }
-                }) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Advanced Settings")
-                                .font(.headline)
-                                .foregroundColor(textColor)
-
-                            Text("Additional expense options")
-                                .font(.caption)
-                                .foregroundColor(secondaryTextColor)
-                        }
-
-                        Spacer()
-
-                        Image(systemName: showAdvancedSettings ? "chevron.up" : "chevron.down")
-                            .foregroundColor(accentColor)
-                            .font(.system(size: 16))
-                    }
-                }
-
-                // Advanced Settings Content (Expandable)
-                if showAdvancedSettings {
-                    Divider()
-                        .background(secondaryTextColor)
-                        .padding(.vertical, 8)
-
-                    // Essential Toggle
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Essential Expense")
-                                .foregroundColor(textColor)
-
-                            Text("Tag expenses you can't live without")
-                                .font(.caption)
-                                .foregroundColor(secondaryTextColor)
-                        }
-
-                        Spacer()
-
-                        Toggle("", isOn: $isEssential)
-                            .toggleStyle(SwitchToggleStyle(tint: accentColor))
-                            .labelsHidden()
-                    }
-                    .padding(.bottom, 12)
-
-                    // Reminder Toggle & Settings
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Set Reminder")
-                                    .foregroundColor(textColor)
-
-                                Text("Get notified about this expense")
-                                    .font(.caption)
-                                    .foregroundColor(secondaryTextColor)
-                            }
-
-                            Spacer()
-
-                            Toggle("", isOn: $showReminder)
-                                .toggleStyle(SwitchToggleStyle(tint: accentColor))
-                                .labelsHidden()
-                        }
-
-                        if showReminder {
-                            Divider()
-                                .background(secondaryTextColor)
-                                .padding(.vertical, 8)
-
-                            VStack(alignment: .leading, spacing: 15) {
-                                HStack {
-                                    Image(systemName: "bell.fill")
-                                        .font(.system(size: iconSize))
-                                        .foregroundColor(accentColor)
-                                        .frame(width: 30)
-
-                                    DatePicker("Reminder Date", selection: $reminderDate)
-                                        .foregroundColor(textColor)
-                                        .labelsHidden()
-                                }
-
-                                HStack {
-                                    Text("Repeat")
-                                        .foregroundColor(textColor)
-                                    Spacer()
-                                }
-
-                                Picker("Frequency", selection: $reminderFrequency) {
-                                    Text("Once").tag(Reminder.Frequency.once)
-                                    Text("Daily").tag(Reminder.Frequency.daily)
-                                    Text("Weekly").tag(Reminder.Frequency.weekly)
-                                    Text("Monthly").tag(Reminder.Frequency.monthly)
-                                    Text("Yearly").tag(Reminder.Frequency.yearly)
-                                }
-                                .pickerStyle(SegmentedPickerStyle())
-                                .colorMultiply(accentColor)
-                            }
-                        }
-                    }
-                    .padding(.bottom, 12)
-
-                    // Notes Field
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Notes (Optional)")
-                            .font(.subheadline)
-                            .foregroundColor(secondaryTextColor)
-
-                        TextEditor(text: $notes)
-                            .frame(minHeight: 100)
-                            .padding(4)
-                            .foregroundColor(textColor)
-                            .background(Color.clear)
-                    }
-
-                    // Conditionally show additional fields for Savings category
-                    if selectedCategory == .savings {
-                        cardView {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Interest Rate")
-                                    .font(.subheadline)
-                                    .foregroundColor(secondaryTextColor)
-
-                                TextField("Ex: 1.5%", text: $interestRate)
-                                    .keyboardType(.decimalPad)
-                                    .foregroundColor(textColor)
-                                    .padding(.vertical, 8)
-                                    .onChange(of: interestRate) { newValue in
-                                        if !newValue.isEmpty {
-                                            expectedAnnualReturn = ""
+                                                        DatePicker("", selection: $expenseDate, displayedComponents: .date)
+                                                            .datePickerStyle(CompactDatePickerStyle())
+                                                            .labelsHidden()
+                                                            .foregroundColor(textColor)
+                                                    }
+                                                    .padding(.vertical, 8)
+                                                }
+                                            }
+                                            .frame(maxWidth: .infinity)
+                                        }
+                                        
+                                        // Conditionally show additional fields for Savings category
+                                        if selectedCategory == .savings {
+                                            HStack(spacing: 12) {
+                                                cardView {
+                                                    VStack(alignment: .leading, spacing: 8) {
+                                                        Text("Interest Rate")
+                                                            .font(.subheadline)
+                                                            .foregroundColor(secondaryTextColor)
+                                                        
+                                                        TextField("Ex: 1.5%", text: $interestRate)
+                                                            .keyboardType(.decimalPad)
+                                                            .foregroundColor(textColor)
+                                                            .padding(.vertical, 8)
+                                                            .onChange(of: interestRate) { newValue in
+                                                                if !newValue.isEmpty {
+                                                                    expectedAnnualReturn = ""
+                                                                }
+                                                            }
+                                                    }
+                                                }
+                                                
+                                                cardView {
+                                                    VStack(alignment: .leading, spacing: 8) {
+                                                        Text("Expected Annual Return")
+                                                            .font(.subheadline)
+                                                            .foregroundColor(secondaryTextColor)
+                                                        
+                                                        TextField("Ex: 5%", text: $expectedAnnualReturn)
+                                                            .keyboardType(.decimalPad)
+                                                            .foregroundColor(textColor)
+                                                            .padding(.vertical, 8)
+                                                            .onChange(of: expectedAnnualReturn) { newValue in
+                                                                if !newValue.isEmpty {
+                                                                    interestRate = ""
+                                                                }
+                                                            }
+                                                    }
+                                                }
+                                            }
+                                            
+                                            // Current Balance Field
+                                            cardView {
+                                                VStack(alignment: .leading, spacing: 8) {
+                                                    Text("Current Balance")
+                                                        .font(.subheadline)
+                                                        .foregroundColor(secondaryTextColor)
+                                                    
+                                                    HStack {
+                                                        TextField("Current savings amount", value: $currentBalance, formatter: NumberFormatter())
+                                                            .keyboardType(.decimalPad)
+                                                            .foregroundColor(textColor)
+                                                            .padding(.vertical, 8)
+                                                        
+                                                        Spacer()
+                                                        
+                                                        // Add a small currency symbol
+                                                        Text(selectedCurrency.symbol)
+                                                            .foregroundColor(secondaryTextColor)
+                                                            .padding(.trailing, 8)
+                                                    }
+                                                }
+                                            }
+                                            .transition(.opacity)
+                                            .animation(.easeInOut, value: selectedCategory == .savings)
                                         }
                                     }
-                            }
-                        }
+                                }
 
-                        cardView {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Expected Annual Return")
-                                    .font(.subheadline)
-                                    .foregroundColor(secondaryTextColor)
+                                // Advanced Settings Section
+                                private var advancedSettingsSection: some View {
+                                    cardView {
+                                        VStack(alignment: .leading, spacing: 16) {
+                                            // Advanced Settings Header (Clickable)
+                                            Button(action: {
+                                                withAnimation {
+                                                    showAdvancedSettings.toggle()
+                                                }
+                                            }) {
+                                                HStack {
+                                                    VStack(alignment: .leading, spacing: 4) {
+                                                        Text("Advanced Settings")
+                                                            .font(.headline)
+                                                            .foregroundColor(textColor)
 
-                                TextField("Ex: 5%", text: $expectedAnnualReturn)
-                                    .keyboardType(.decimalPad)
-                                    .foregroundColor(textColor)
-                                    .padding(.vertical, 8)
-                                    .onChange(of: expectedAnnualReturn) { newValue in
-                                        if !newValue.isEmpty {
-                                            interestRate = ""
+                                                        Text("Additional expense options")
+                                                            .font(.caption)
+                                                            .foregroundColor(secondaryTextColor)
+                                                    }
+
+                                                    Spacer()
+
+                                                    Image(systemName: showAdvancedSettings ? "chevron.up" : "chevron.down")
+                                                        .foregroundColor(accentColor)
+                                                        .font(.system(size: 16))
+                                                }
+                                            }
+
+                                            // Advanced Settings Content (Expandable)
+                                            if showAdvancedSettings {
+                                                Divider()
+                                                    .background(secondaryTextColor)
+                                                    .padding(.vertical, 8)
+
+                                                // Essential Toggle
+                                                HStack {
+                                                    VStack(alignment: .leading, spacing: 4) {
+                                                        Text("Essential Expense")
+                                                            .foregroundColor(textColor)
+
+                                                        Text("Tag expenses you can't live without")
+                                                            .font(.caption)
+                                                            .foregroundColor(secondaryTextColor)
+                                                    }
+
+                                                    Spacer()
+
+                                                    Toggle("", isOn: $isEssential)
+                                                        .toggleStyle(SwitchToggleStyle(tint: accentColor))
+                                                        .labelsHidden()
+                                                }
+                                                .padding(.bottom, 12)
+
+                                                // Reminder Toggle & Settings
+                                                VStack(alignment: .leading, spacing: 12) {
+                                                    HStack {
+                                                        VStack(alignment: .leading, spacing: 4) {
+                                                            Text("Set Reminder")
+                                                                .foregroundColor(textColor)
+
+                                                            Text("Get notified about this expense")
+                                                                .font(.caption)
+                                                                .foregroundColor(secondaryTextColor)
+                                                        }
+
+                                                        Spacer()
+
+                                                        Toggle("", isOn: $showReminder)
+                                                            .toggleStyle(SwitchToggleStyle(tint: accentColor))
+                                                            .labelsHidden()
+                                                    }
+
+                                                    if showReminder {
+                                                        Divider()
+                                                            .background(secondaryTextColor)
+                                                            .padding(.vertical, 8)
+
+                                                        VStack(alignment: .leading, spacing: 15) {
+                                                            HStack {
+                                                                Image(systemName: "bell.fill")
+                                                                    .font(.system(size: iconSize))
+                                                                    .foregroundColor(accentColor)
+                                                                    .frame(width: 30)
+
+                                                                DatePicker("Reminder Date", selection: $reminderDate)
+                                                                    .foregroundColor(textColor)
+                                                                    .labelsHidden()
+                                                            }
+
+                                                            HStack {
+                                                                Text("Repeat")
+                                                                    .foregroundColor(textColor)
+                                                                Spacer()
+                                                            }
+
+                                                            Picker("Frequency", selection: $reminderFrequency) {
+                                                                Text("Once").tag(Reminder.Frequency.once)
+                                                                Text("Daily").tag(Reminder.Frequency.daily)
+                                                                Text("Weekly").tag(Reminder.Frequency.weekly)
+                                                                Text("Monthly").tag(Reminder.Frequency.monthly)
+                                                                Text("Yearly").tag(Reminder.Frequency.yearly)
+                                                            }
+                                                            .pickerStyle(SegmentedPickerStyle())
+                                                            .colorMultiply(accentColor)
+                                                        }
+                                                    }
+                                                }
+                                                .padding(.bottom, 12)
+
+                                                // Notes Field
+                                                VStack(alignment: .leading, spacing: 8) {
+                                                    Text("Notes (Optional)")
+                                                        .font(.subheadline)
+                                                        .foregroundColor(secondaryTextColor)
+
+                                                    TextEditor(text: $notes)
+                                                        .frame(minHeight: 100)
+                                                        .padding(4)
+                                                        .foregroundColor(textColor)
+                                                        .background(Color.clear)
+                                                }
+                                            }
                                         }
                                     }
+                                }
+
+                                // Update Button
+                                private var updateButton: some View {
+                                    Button(action: saveExpense) {
+                                        Text("Update Expense")
+                                            .font(.headline)
+                                            .foregroundColor(.white)
+                                            .frame(maxWidth: .infinity)
+                                            .padding()
+                                            .background(accentColor)
+                                            .cornerRadius(cornerRadius)
+                                    }
+                                    .padding(.top)
+                                }
+
+                                // Card View Wrapper
+                                private func cardView<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+                                    VStack {
+                                        content()
+                                    }
+                                    .padding()
+                                    .background(cardBackground)
+                                    .cornerRadius(cornerRadius)
+                                }
+
+                                // MARK: - Actions
+                                private func createUpdatedExpense() -> Expense {
+                                    var reminder: Reminder?
+                                    if showReminder {
+                                        reminder = Reminder(date: reminderDate, frequency: reminderFrequency)
+                                    }
+
+                                    // Create new expense with current values
+                                    return Expense(
+                                        id: expense.id,  // Keep the original ID
+                                        name: name,
+                                        amount: Double(amount) ?? expense.amount,
+                                        currency: selectedCurrency,
+                                        category: selectedCategory,
+                                        date: expenseDate,
+                                        isEssential: isEssential,
+                                        notes: notes,
+                                        reminder: reminder,
+                                        interestRate: interestRate.isEmpty ? nil : interestRate,
+                                        expectedAnnualReturn: expectedAnnualReturn.isEmpty ? nil : expectedAnnualReturn,
+                                        currentBalance: selectedCategory == .savings ? currentBalance : nil
+                                    )
+                                }
+
+                                private func postNotifications() {
+                                    // Post a combination of notifications with different delays to ensure one works
+                                    NotificationCenter.default.post(
+                                        name: NSNotification.Name("RefreshBudgetDetail"),
+                                        object: nil
+                                    )
+
+                                    NotificationCenter.default.post(
+                                        name: NSNotification.Name("ExpenseEdited"),
+                                        object: nil,
+                                        userInfo: ["budgetId": budgetId]
+                                    )
+
+                                    // Also post a delayed notification to ensure it catches after view transitions
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                        NotificationCenter.default.post(
+                                            name: NSNotification.Name("RefreshBudgetDetail"),
+                                            object: nil
+                                        )
+                                    }
+                                }
+
+                                private func saveExpense() {
+                                    guard !name.isEmpty, let amountValue = Double(amount), amountValue > 0 else {
+                                        return
+                                    }
+
+                                    let updatedExpense = createUpdatedExpense()
+
+                                    // Debug print for troubleshooting
+                                    print("Updating expense: \(updatedExpense.id) with new amount: \(amountValue) in budget: \(budgetId)")
+
+                                    // Update in the view model
+                                    viewModel.updateExpense(updatedExpense, in: budgetId)
+
+                                    // Post all notifications to ensure something works
+                                    postNotifications()
+
+                                    // Post an additional notification after a brief delay (after dismiss)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        NotificationCenter.default.post(
+                                            name: NSNotification.Name("RefreshBudgetDetail"),
+                                            object: nil
+                                        )
+                                    }
+
+                                    // Dismiss the view
+                                    dismiss()
+                                }
                             }
-                        }
-                    }
-                }
-            }
-        }
-    }
 
-    // Update Button
-    private var updateButton: some View {
-        Button(action: saveExpense) {
-            Text("Update Expense")
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(accentColor)
-                .cornerRadius(cornerRadius)
-        }
-        .padding(.top)
-    }
+                            // MARK: - Preview Provider
+                            #if DEBUG
+                            struct EditExpenseView_Previews: PreviewProvider {
+                                static var previews: some View {
+                                    let sampleExpense = Expense(
+                                        name: "Rent",
+                                        amount: 500,
+                                        currency: .gbp,
+                                        category: .housing,
+                                        isEssential: true
+                                    )
 
-    // Card View Wrapper
-    private func cardView<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        VStack {
-            content()
-        }
-        .padding()
-        .background(cardBackground)
-        .cornerRadius(cornerRadius)
-    }
-
-    // MARK: - Actions
-    private func createUpdatedExpense() -> Expense {
-        var reminder: Reminder?
-        if showReminder {
-            reminder = Reminder(date: reminderDate, frequency: reminderFrequency)
-        }
-
-        // Create new expense with current values
-        return Expense(
-            id: expense.id,  // Keep the original ID
-            name: name,
-            amount: Double(amount) ?? expense.amount,
-            currency: selectedCurrency,
-            category: selectedCategory,
-            date: expenseDate,
-            isEssential: isEssential,
-            notes: notes,
-            reminder: reminder,
-            interestRate: interestRate.isEmpty ? nil : interestRate,
-            expectedAnnualReturn: expectedAnnualReturn.isEmpty ? nil : expectedAnnualReturn
-        )
-    }
-
-    private func postNotifications() {
-        // Post a combination of notifications with different delays to ensure one works
-        NotificationCenter.default.post(
-            name: NSNotification.Name("RefreshBudgetDetail"),
-            object: nil
-        )
-
-        NotificationCenter.default.post(
-            name: NSNotification.Name("ExpenseEdited"),
-            object: nil,
-            userInfo: ["budgetId": budgetId]
-        )
-
-        // Also post a delayed notification to ensure it catches after view transitions
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            NotificationCenter.default.post(
-                name: NSNotification.Name("RefreshBudgetDetail"),
-                object: nil
-            )
-        }
-    }
-
-    private func saveExpense() {
-        guard !name.isEmpty, let amountValue = Double(amount), amountValue > 0 else {
-            return
-        }
-
-        let updatedExpense = createUpdatedExpense()
-
-        // Debug print for troubleshooting
-        print("Updating expense: \(updatedExpense.id) with new amount: \(amountValue) in budget: \(budgetId)")
-
-        // Update in the view model
-        viewModel.updateExpense(updatedExpense, in: budgetId)
-
-        // Post all notifications to ensure something works
-        postNotifications()
-
-        // Post an additional notification after a brief delay (after dismiss)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            NotificationCenter.default.post(
-                name: NSNotification.Name("RefreshBudgetDetail"),
-                object: nil
-            )
-        }
-
-        // Dismiss the view
-        dismiss()
-    }
-}
-
-// MARK: - Preview Provider
-#if DEBUG
-struct EditExpenseView_Previews: PreviewProvider {
-    static var previews: some View {
-        let sampleExpense = Expense(
-            name: "Rent",
-            amount: 500,
-            currency: .gbp,
-            category: .housing,
-            isEssential: true
-        )
-
-        return EditExpenseView(budgetId: UUID(), expense: sampleExpense, startYear: 2023)
-            .environmentObject(BudgetViewModel())
-            .preferredColorScheme(.dark)
-    }
-}
-#endif
+                                    return EditExpenseView(budgetId: UUID(), expense: sampleExpense, startYear: 2023)
+                                        .environmentObject(BudgetViewModel())
+                                        .preferredColorScheme(.dark)
+                                }
+                            }
+                            #endif

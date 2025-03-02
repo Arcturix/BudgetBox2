@@ -262,12 +262,23 @@ struct AddExpenseView: View {
                             .font(.subheadline)
                             .foregroundColor(secondaryTextColor)
                         
-                        TextField("Ex: 1000.00", value: $currentSavingsBalance, formatter: NumberFormatter())
-                            .keyboardType(.decimalPad)
-                            .foregroundColor(textColor)
-                            .padding(.vertical, 8)
+                        HStack {
+                            TextField("Current savings amount", value: $currentSavingsBalance, formatter: NumberFormatter())
+                                .keyboardType(.decimalPad)
+                                .foregroundColor(textColor)
+                                .padding(.vertical, 8)
+                            
+                            Spacer()
+                            
+                            // Add a small currency symbol
+                            Text(selectedCurrency.symbol)
+                                .foregroundColor(secondaryTextColor)
+                                .padding(.trailing, 8)
+                        }
                     }
                 }
+                .transition(.opacity)
+                .animation(.easeInOut, value: selectedCategory == .savings)
             }
         }
     }
@@ -456,6 +467,7 @@ struct AddExpenseView: View {
             reminder = Reminder(date: reminderDate, frequency: reminderFrequency)
         }
         
+        // Create a new expense with the current balance for savings category
         let newExpense = Expense(
             name: name,
             amount: amountValue,
@@ -466,11 +478,15 @@ struct AddExpenseView: View {
             notes: notes,
             reminder: reminder,
             interestRate: selectedCategory == .savings ? interestRate : nil,
-            expectedAnnualReturn: selectedCategory == .savings ? expectedAnnualReturn : nil
+            expectedAnnualReturn: selectedCategory == .savings ? expectedAnnualReturn : nil,
+            currentBalance: selectedCategory == .savings ? currentSavingsBalance : nil
         )
         
         // Debug print for troubleshooting
         print("Adding expense: \(name) with amount: \(amountValue) to budget: \(budgetId)")
+        if selectedCategory == .savings {
+            print("Savings with current balance: \(currentSavingsBalance)")
+        }
         
         // Add expense to the viewModel
         viewModel.addExpense(newExpense, to: budgetId)

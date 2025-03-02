@@ -13,6 +13,7 @@ struct Expense: Identifiable, Codable, Hashable, Equatable {
     var reminder: Reminder?
     var interestRate: String? // New property for interest rate
     var expectedAnnualReturn: String? // New property for expected annual return
+    var currentBalance: Double? // New property for current balance
     
     // Implement Hashable
     func hash(into hasher: inout Hasher) {
@@ -41,6 +42,28 @@ struct Expense: Identifiable, Codable, Hashable, Equatable {
             return amount * conversionRate
         }
         return amount
+    }
+    
+    // Convert current balance to target currency if needed
+    func convertedCurrentBalance(to targetCurrency: Currency) -> Double? {
+        guard let balance = currentBalance else { return nil }
+        
+        if currency == targetCurrency {
+            return balance
+        }
+        
+        // Use the same conversion rates as for the amount
+        let rates: [Currency: [Currency: Double]] = [
+            .usd: [.eur: 0.85, .gbp: 0.75, .jpy: 110.0],
+            .eur: [.usd: 1.18, .gbp: 0.88, .jpy: 129.5],
+            .gbp: [.usd: 1.33, .eur: 1.14, .jpy: 147.0],
+            .jpy: [.usd: 0.009, .eur: 0.0077, .gbp: 0.0068]
+        ]
+        
+        if let conversionRate = rates[currency]?[targetCurrency] {
+            return balance * conversionRate
+        }
+        return balance
     }
 }
 
