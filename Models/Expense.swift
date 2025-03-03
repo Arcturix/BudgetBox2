@@ -13,7 +13,7 @@ struct Expense: Identifiable, Codable, Hashable, Equatable {
     var reminder: Reminder?
     var interestRate: String? // New property for interest rate
     var expectedAnnualReturn: String? // New property for expected annual return
-    var currentBalance: Double? // New property for current balance
+    var startingBalance: Double? // Renamed from currentBalance
     
     // Implement Hashable
     func hash(into hasher: inout Hasher) {
@@ -44,9 +44,9 @@ struct Expense: Identifiable, Codable, Hashable, Equatable {
         return amount
     }
     
-    // Convert current balance to target currency if needed
-    func convertedCurrentBalance(to targetCurrency: Currency) -> Double? {
-        guard let balance = currentBalance else { return nil }
+    // Convert starting balance to target currency if needed
+    func convertedStartingBalance(to targetCurrency: Currency) -> Double? {
+        guard let balance = startingBalance else { return nil }
         
         if currency == targetCurrency {
             return balance

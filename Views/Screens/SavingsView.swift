@@ -1,4 +1,5 @@
 import SwiftUI
+import Foundation
 
 // Modified sparkline that shows both contributions and current value
 private func simpleSparklineView(color: Color) -> some View {
@@ -177,14 +178,14 @@ struct SavingsView: View {
                     .bold()
                     .foregroundColor(Color(hex: budget.colorHex))
                 
-                // Initial balance if present
-                if let initialBalance = item.currentBalance, initialBalance > 0 {
+                // Starting balance if present
+                if let startingBalance = item.startingBalance, startingBalance > 0 {
                     HStack {
                         Image(systemName: "banknote")
                             .foregroundColor(.blue)
                             .font(.caption)
                         
-                        Text("Initial: \(budget.currency.symbol)\(initialBalance, specifier: "%.2f")")
+                        Text("Initial: \(budget.currency.symbol)\(startingBalance, specifier: "%.2f")")
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
@@ -285,10 +286,10 @@ struct SavingsView: View {
                     }
                 }
                 
-                if let initialBalance = item.currentBalance, initialBalance > 0 {
+                if let initialBalance = item.startingBalance, initialBalance > 0 {
                     HStack {
                         VStack(alignment: .leading) {
-                            Text("Initial balance")
+                            Text("Starting balance")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                             
@@ -323,7 +324,7 @@ struct SavingsView: View {
         let currentValue = calculateCurrentValue(for: item)
         let monthsActive = monthsSince(item.date)
         let contributions = Double(monthsActive) * item.amount
-        let initialBalance = item.currentBalance ?? 0.0
+        let initialBalance = item.startingBalance ?? 0.0
         
         return VStack(alignment: .leading, spacing: 12) {
             Text("Current Value")
@@ -370,7 +371,7 @@ struct SavingsView: View {
             if initialBalance > 0 {
                 HStack {
                     VStack(alignment: .leading) {
-                        Text("Initial balance")
+                        Text("Starting balance")
                             .font(.caption)
                             .foregroundColor(.gray)
                         
@@ -424,7 +425,7 @@ struct SavingsView: View {
                 let currentMonths = monthsSince(item.date)
                 let totalMonths = currentMonths + period.months
                 let totalContributions = item.amount * Double(totalMonths)
-                let initialBalance = item.currentBalance ?? 0.0
+                let initialBalance = item.startingBalance ?? 0.0
                 let interestGained = max(0, projection - totalContributions - initialBalance)
                 
                 // Calculate the future date
@@ -467,7 +468,7 @@ struct SavingsView: View {
                         
                         if initialBalance > 0 {
                             HStack {
-                                Text("Initial balance:")
+                                Text("Starting balance:")
                                     .font(.caption)
                                     .foregroundColor(.gray)
                                 
@@ -510,7 +511,7 @@ struct SavingsView: View {
         let monthlyInterestRate = interestRate / 100 / 12
         
         // Get initial balance (converted to budget currency if needed)
-        let initialBalance = item.currentBalance ?? 0.0
+        let initialBalance = item.startingBalance ?? 0.0
         
         // Use future value of annuity formula for regular monthly deposits
         // FV = PMT × ((1 + r)^n - 1) / r
@@ -528,140 +529,119 @@ struct SavingsView: View {
             
             // Total future value is the sum of both
             return contributionsFV + initialBalanceFV
-        } else
-        {
-                    // If interest rate is 0, it's just the sum of contributions plus initial balance
-                    return item.amount * Double(monthsActive) + initialBalance
-                }
-            }
+        } else {
+            // If interest rate is 0, it's just the sum of contributions plus initial balance
+            return item.amount * Double(monthsActive) + initialBalance
+        }
+    }
+    
+    private func calculateProjection(for item: Expense, months: Int) -> Double {
+        let interestRate = extractInterestRate(from: item.notes)
+        let currentMonths = monthsSince(item.date)
+        let totalMonths = currentMonths + months
+        let monthlyInterestRate = interestRate / 100 / 12
+        
+        // Get initial balance
+        let initialBalance = item.startingBalance ?? 0.0
+        
+        if monthlyInterestRate > 0 {
+            // Calculate future value of regular contributions from start date to projection end
+            let contributionsFV = item.amount * ((pow(1 + monthlyInterestRate, Double(totalMonths)) - 1) / monthlyInterestRate)
             
-            private func calculateProjection(for item: Expense, months: Int) -> Double {
-                let interestRate = extractInterestRate(from: item.notes)
-                let currentMonths = monthsSince(item.date)
-                let totalMonths = currentMonths + months
-                let monthlyInterestRate = interestRate / 100 / 12
-                
-                // Get initial balance
-                let initialBalance = item.currentBalance ?? 0.0
-                
-                if monthlyInterestRate > 0 {
-                    // Calculate future value of regular contributions from start date to projection end
-                    let contributionsFV = item.amount * ((pow(1 + monthlyInterestRate, Double(totalMonths)) - 1) / monthlyInterestRate)
-                    
-                    // Calculate future value of the initial balance
-                    let initialBalanceFV = initialBalance * pow(1 + monthlyInterestRate, Double(totalMonths))
-                    
-                    // Total future value is the sum of both
-                    return contributionsFV + initialBalanceFV
-                } else {
-                    // If interest rate is 0, it's just the sum of contributions plus initial balance
-                    return item.amount * Double(totalMonths) + initialBalance
-                }
-            }
+            // Calculate future value of the initial balance
+            let initialBalanceFV = initialBalance * pow(1 + monthlyInterestRate, Double(totalMonths))
             
-            private func extractInterestRate(from notes: String) -> Double {
-                // Look for interest rate in notes (format: "Interest: X%" or "APR: X%")
-                let patterns = ["Interest: ", "interest: ", "APR: ", "apr: "]
-                
-                for pattern in patterns {
-                    if let range = notes.range(of: pattern) {
-                        let startIndex = range.upperBound
-                        if let endRange = notes[startIndex...].range(of: "%") {
-                            let substring = notes[startIndex..<endRange.lowerBound]
-                            if let rate = Double(substring.trimmingCharacters(in: .whitespaces)) {
-                                return rate
-                            }
-                        }
+            // Total future value is the sum of both
+            return contributionsFV + initialBalanceFV
+        } else {
+            // If interest rate is 0, it's just the sum of contributions plus initial balance
+            return item.amount * Double(totalMonths) + initialBalance
+        }
+    }
+    
+    private func extractInterestRate(from notes: String) -> Double {
+        // Look for interest rate in notes (format: "Interest: X%" or "APR: X%")
+        let patterns = ["Interest: ", "interest: ", "APR: ", "apr: "]
+        
+        for pattern in patterns {
+            if let range = notes.range(of: pattern) {
+                let startIndex = range.upperBound
+                if let endRange = notes[startIndex...].range(of: "%") {
+                    let substring = notes[startIndex..<endRange.lowerBound]
+                    if let rate = Double(substring.trimmingCharacters(in: .whitespaces)) {
+                        return rate
                     }
                 }
-                
-                // Default interest rate of 5%
-                return 5.0
-            }
-            
-            private func monthsSince(_ date: Date) -> Int {
-                let calendar = Calendar.current
-                let startComponents = calendar.dateComponents([.year, .month], from: date)
-                let currentComponents = calendar.dateComponents([.year, .month], from: Date())
-                
-                let yearDiff = currentComponents.year! - startComponents.year!
-                let monthDiff = currentComponents.month! - startComponents.month!
-                
-                return max(1, yearDiff * 12 + monthDiff + 1) // +1 to include current month, minimum 1 month
-            }
-            
-            // MARK: - Formatters
-            
-            private var dateFormatter: DateFormatter {
-                let formatter = DateFormatter()
-                formatter.dateStyle = .medium
-                formatter.timeStyle = .none
-                return formatter
-            }
-            
-            private var projectionDateFormatter: DateFormatter {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "MMM d, yyyy"
-                return formatter
             }
         }
+        
+        // Default interest rate of 5%
+        return 5.0
+    }
+    
+    private func monthsSince(_ date: Date) -> Int {
+        let calendar = Calendar.current
+        let startComponents = calendar.dateComponents([.year, .month], from: date)
+        let currentComponents = calendar.dateComponents([.year, .month], from: Date())
+        
+        let yearDiff = currentComponents.year! - startComponents.year!
+        let monthDiff = currentComponents.month! - startComponents.month!
+        
+        return max(1, yearDiff * 12 + monthDiff + 1) // +1 to include current month, minimum 1 month
+    }
+    
+    // MARK: - Formatters
+    
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }
+    
+    private var projectionDateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, yyyy"
+        return formatter
+    }
+}
 
-        // MARK: - Preview Provider
-
-        struct SavingsView_Previews: PreviewProvider {
-            static var previews: some View {
-                let sampleExpenses = [
-                    Expense(
-                        name: "Retirement Fund",
-                        amount: 200.0,
-                        currency: .eur,  // Changed to match budget currency
-                        category: .savings,
-                        date: Calendar.current.date(byAdding: .month, value: -6, to: Date())!,
-                        isEssential: true,
-                        notes: "Interest: 7%",
-                        currentBalance: 1000.0 // Added initial balance
-                    ),
-                    Expense(
-                        name: "Emergency Fund",
-                        amount: 100.0,
-                        currency: .eur,  // Changed to match budget currency
-                        category: .savings,
-                        date: Calendar.current.date(byAdding: .month, value: -3, to: Date())!,
-                        isEssential: true,
-                        notes: "APR: 2.5%",
-                        currentBalance: 500.0 // Added initial balance
-                    )
-                ]
-                
-                let sampleBudget = Budget(
-                    name: "Monthly Budget",
-                    amount: 1000.0,
-                    currency: .eur,  // Changed to match system preferences
-                    iconName: "dollarsign.circle",
-                    colorHex: "A169F7",
-                    isMonthly: true,
-                    expenses: sampleExpenses,
-                    startMonth: 1,
-                    startYear: 2023
-                )
-                
-                SavingsView(budget: sampleBudget)
-                    .preferredColorScheme(.dark)
-                    
-                // Preview with single item
-                let singleItemBudget = Budget(
-                    name: "Monthly Budget",
-                    amount: 1000.0,
-                    currency: .eur,  // Changed to match system preferences
-                    iconName: "dollarsign.circle",
-                    colorHex: "A169F7",
-                    isMonthly: true,
-                    expenses: [sampleExpenses[0]],
-                    startMonth: 1,
-                    startYear: 2023
-                )
-                
-                SavingsView(budget: singleItemBudget)
-                    .preferredColorScheme(.dark)
-            }
-        }
+#Preview {
+    let sampleExpenses = [
+        Expense(
+            name: "Retirement Fund",
+            amount: 200.0,
+            currency: .eur,
+            category: .savings,
+            date: Calendar.current.date(byAdding: .month, value: -6, to: Date())!,
+            isEssential: true,
+            notes: "Interest: 7%",
+            startingBalance: 1000.0
+        ),
+        Expense(
+            name: "Emergency Fund",
+            amount: 100.0,
+            currency: .eur,
+            category: .savings,
+            date: Calendar.current.date(byAdding: .month, value: -3, to: Date())!,
+            isEssential: true,
+            notes: "APR: 2.5%",
+            startingBalance: 500.0
+        )
+    ]
+    
+    let sampleBudget = Budget(
+        name: "Monthly Budget",
+        amount: 1000.0,
+        currency: .eur,
+        iconName: "dollarsign.circle",
+        colorHex: "A169F7",
+        isMonthly: true,
+        expenses: sampleExpenses,
+        startMonth: 1,
+        startYear: 2023
+    )
+    
+    return SavingsView(budget: sampleBudget)
+        .preferredColorScheme(.dark)
+}

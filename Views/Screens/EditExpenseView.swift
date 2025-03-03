@@ -52,7 +52,7 @@ struct EditExpenseView: View {
         _reminderFrequency = State(initialValue: expense.reminder?.frequency ?? .once)
         _interestRate = State(initialValue: expense.interestRate ?? "")
         _expectedAnnualReturn = State(initialValue: expense.expectedAnnualReturn ?? "")
-        _currentBalance = State(initialValue: expense.currentBalance ?? 0.0)
+        _currentBalance = State(initialValue: expense.startingBalance ?? 0.0)
     }
     
     // MARK: - Main View
@@ -211,200 +211,200 @@ struct EditExpenseView: View {
                                             .foregroundColor(secondaryTextColor)
                                     }
                                 }
-                                                                .toggleStyle(SwitchToggleStyle(tint: accentColor))
-                                                                
-                                                                if showReminder {
-                                                                    Divider()
-                                                                        .background(secondaryTextColor)
-                                                                        .padding(.vertical, 8)
-                                                                    
-                                                                    DatePicker("Reminder Date", selection: $reminderDate)
-                                                                        .foregroundColor(textColor)
-                                                                    
-                                                                    Text("Repeat")
-                                                                        .foregroundColor(textColor)
-                                                                    
-                                                                    Picker("Frequency", selection: $reminderFrequency) {
-                                                                        Text("Once").tag(Reminder.Frequency.once)
-                                                                        Text("Daily").tag(Reminder.Frequency.daily)
-                                                                        Text("Weekly").tag(Reminder.Frequency.weekly)
-                                                                        Text("Monthly").tag(Reminder.Frequency.monthly)
-                                                                        Text("Yearly").tag(Reminder.Frequency.yearly)
-                                                                    }
-                                                                    .pickerStyle(SegmentedPickerStyle())
-                                                                }
-                                                            }
-                                                        }
-                                                        
-                                                        // Notes
-                                                        cardView {
-                                                            VStack(alignment: .leading, spacing: 8) {
-                                                                Text("Notes (Optional)")
-                                                                    .font(.subheadline)
-                                                                    .foregroundColor(secondaryTextColor)
-                                                                
-                                                                TextEditor(text: $notes)
-                                                                    .frame(minHeight: 100)
-                                                                    .foregroundColor(textColor)
-                                                                    .background(Color.clear)
-                                                                    .overlay(
-                                                                        RoundedRectangle(cornerRadius: 8)
-                                                                            .stroke(secondaryTextColor.opacity(0.3), lineWidth: 1)
-                                                                    )
-                                                            }
-                                                        }
-                                                        
-                                                        // Update Button
-                                                        Button(action: saveExpense) {
-                                                            Text("Update Expense")
-                                                                .font(.headline)
-                                                                .foregroundColor(.white)
-                                                                .frame(maxWidth: .infinity)
-                                                                .padding()
-                                                                .background(accentColor)
-                                                                .cornerRadius(cornerRadius)
-                                                        }
-                                                        .padding(.top)
-                                                        .disabled(name.isEmpty || amount.isEmpty || Double(amount) == nil || Double(amount)! <= 0)
-                                                    }
-                                                    .padding()
-                                                }
-                                            }
-                                            .navigationTitle("Edit Expense")
-                                            .navigationBarTitleDisplayMode(.inline)
-                                            .toolbar {
-                                                ToolbarItem(placement: .navigationBarLeading) {
-                                                    Button("Cancel") {
-                                                        dismiss()
-                                                    }
-                                                    .foregroundColor(textColor)
-                                                }
-                                            }
-                                        }
+                                .toggleStyle(SwitchToggleStyle(tint: accentColor))
+                                
+                                if showReminder {
+                                    Divider()
+                                        .background(secondaryTextColor)
+                                        .padding(.vertical, 8)
+                                    
+                                    DatePicker("Reminder Date", selection: $reminderDate)
+                                        .foregroundColor(textColor)
+                                    
+                                    Text("Repeat")
+                                        .foregroundColor(textColor)
+                                    
+                                    Picker("Frequency", selection: $reminderFrequency) {
+                                        Text("Once").tag(Reminder.Frequency.once)
+                                        Text("Daily").tag(Reminder.Frequency.daily)
+                                        Text("Weekly").tag(Reminder.Frequency.weekly)
+                                        Text("Monthly").tag(Reminder.Frequency.monthly)
+                                        Text("Yearly").tag(Reminder.Frequency.yearly)
                                     }
-                                    
-                                    // MARK: - UI Components
-                                    
-                                    private var savingsFields: some View {
-                                        Group {
-                                            HStack(spacing: 12) {
-                                                cardView {
-                                                    VStack(alignment: .leading, spacing: 8) {
-                                                        Text("Interest Rate")
-                                                            .font(.subheadline)
-                                                            .foregroundColor(secondaryTextColor)
-                                                        
-                                                        TextField("Ex: 1.5%", text: $interestRate)
-                                                            .keyboardType(.decimalPad)
-                                                            .foregroundColor(textColor)
-                                                            .padding(.vertical, 8)
-                                                            .onChange(of: interestRate) {
-                                                                if !interestRate.isEmpty {
-                                                                    expectedAnnualReturn = ""
+                                    .pickerStyle(SegmentedPickerStyle())
+                                }
+                            }
+                        }
+                        
+                        // Notes
+                        cardView {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Notes (Optional)")
+                                    .font(.subheadline)
+                                    .foregroundColor(secondaryTextColor)
+                                
+                                TextEditor(text: $notes)
+                                    .frame(minHeight: 100)
+                                    .foregroundColor(textColor)
+                                    .background(Color.clear)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(secondaryTextColor.opacity(0.3), lineWidth: 1)
+                                    )
+                            }
+                        }
+                        
+                        // Update Button
+                        Button(action: saveExpense) {
+                            Text("Update Expense")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(accentColor)
+                                .cornerRadius(cornerRadius)
+                        }
+                        .padding(.top)
+                        .disabled(name.isEmpty || amount.isEmpty || Double(amount) == nil || Double(amount)! <= 0)
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Edit Expense")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(textColor)
+                }
+            }
+        }
+    }
+    
+    // MARK: - UI Components
+    
+    private var savingsFields: some View {
+        Group {
+            HStack(spacing: 12) {
+                cardView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Interest Rate")
+                            .font(.subheadline)
+                            .foregroundColor(secondaryTextColor)
+                        
+                        TextField("Ex: 1.5%", text: $interestRate)
+                            .keyboardType(.decimalPad)
+                            .foregroundColor(textColor)
+                            .padding(.vertical, 8)
+                            .onChange(of: interestRate) {
+                                if !interestRate.isEmpty {
+                                    expectedAnnualReturn = ""
+                                }
+                            }
+                    }
+                }
+                
+                cardView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Expected Annual Return")
+                            .font(.subheadline)
+                            .foregroundColor(secondaryTextColor)
+                        
+                        TextField("Ex: 5%", text: $expectedAnnualReturn)
+                            .keyboardType(.decimalPad)
+                            .foregroundColor(textColor)
+                            .padding(.vertical, 8)
+                            .onChange(of: expectedAnnualReturn) {
+                                if !expectedAnnualReturn.isEmpty {
+                                    interestRate = ""
+                                                                    }
                                                                 }
-                                                            }
+                                                        }
                                                     }
                                                 }
                                                 
                                                 cardView {
                                                     VStack(alignment: .leading, spacing: 8) {
-                                                        Text("Expected Annual Return")
+                                                        Text("Starting Balance")
                                                             .font(.subheadline)
                                                             .foregroundColor(secondaryTextColor)
                                                         
-                                                        TextField("Ex: 5%", text: $expectedAnnualReturn)
-                                                            .keyboardType(.decimalPad)
-                                                            .foregroundColor(textColor)
-                                                            .padding(.vertical, 8)
-                                                            .onChange(of: expectedAnnualReturn) {
-                                                                if !expectedAnnualReturn.isEmpty {
-                                                                    interestRate = ""
-                                                                }
-                                                            }
+                                                        HStack {
+                                                            TextField("Initial savings amount", value: $currentBalance, format: .number)
+                                                                .keyboardType(.decimalPad)
+                                                                .foregroundColor(textColor)
+                                                                .padding(.vertical, 8)
+                                                            
+                                                            Spacer()
+                                                            
+                                                            // Add a small currency symbol
+                                                            Text(selectedCurrency.symbol)
+                                                                .foregroundColor(secondaryTextColor)
+                                                                .padding(.trailing, 8)
+                                                        }
                                                     }
                                                 }
+                                            }
+                                        }
+                                        
+                                        // Card View Wrapper
+                                        @ViewBuilder
+                                        private func cardView<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+                                            VStack {
+                                                content()
+                                            }
+                                            .padding()
+                                            .background(cardBackground)
+                                            .cornerRadius(cornerRadius)
+                                        }
+                                        
+                                        // MARK: - Actions
+                                        private func saveExpense() {
+                                            guard !name.isEmpty, let amountValue = Double(amount), amountValue > 0 else {
+                                                return
                                             }
                                             
-                                            cardView {
-                                                VStack(alignment: .leading, spacing: 8) {
-                                                    Text("Current Balance")
-                                                        .font(.subheadline)
-                                                        .foregroundColor(secondaryTextColor)
-                                                    
-                                                    HStack {
-                                                        TextField("Current savings amount", value: $currentBalance, format: .number)
-                                                            .keyboardType(.decimalPad)
-                                                            .foregroundColor(textColor)
-                                                            .padding(.vertical, 8)
-                                                        
-                                                        Spacer()
-                                                        
-                                                        // Add a small currency symbol
-                                                        Text(selectedCurrency.symbol)
-                                                            .foregroundColor(secondaryTextColor)
-                                                            .padding(.trailing, 8)
-                                                    }
-                                                }
+                                            var reminder: Reminder?
+                                            if showReminder {
+                                                reminder = Reminder(date: reminderDate, frequency: reminderFrequency)
                                             }
+                                            
+                                            // Create updated expense
+                                            let updatedExpense = Expense(
+                                                id: expense.id,  // Keep the original ID
+                                                name: name,
+                                                amount: amountValue,
+                                                currency: selectedCurrency,
+                                                category: selectedCategory,
+                                                date: expenseDate,
+                                                isEssential: isEssential,
+                                                notes: notes,
+                                                reminder: reminder,
+                                                interestRate: selectedCategory == .savings ? interestRate : nil,
+                                                expectedAnnualReturn: selectedCategory == .savings ? expectedAnnualReturn : nil,
+                                                startingBalance: selectedCategory == .savings ? currentBalance : nil
+                                            )
+                                            
+                                            // Update expense in view model
+                                            viewModel.updateExpense(updatedExpense, in: budgetId)
+                                            
+                                            // Dismiss the view
+                                            dismiss()
                                         }
                                     }
-                                    
-                                    // Card View Wrapper
-                                    @ViewBuilder
-                                    private func cardView<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-                                        VStack {
-                                            content()
-                                        }
-                                        .padding()
-                                        .background(cardBackground)
-                                        .cornerRadius(cornerRadius)
-                                    }
-                                    
-                                    // MARK: - Actions
-                                    private func saveExpense() {
-                                        guard !name.isEmpty, let amountValue = Double(amount), amountValue > 0 else {
-                                            return
-                                        }
-                                        
-                                        var reminder: Reminder?
-                                        if showReminder {
-                                            reminder = Reminder(date: reminderDate, frequency: reminderFrequency)
-                                        }
-                                        
-                                        // Create updated expense
-                                        let updatedExpense = Expense(
-                                            id: expense.id,  // Keep the original ID
-                                            name: name,
-                                            amount: amountValue,
-                                            currency: selectedCurrency,
-                                            category: selectedCategory,
-                                            date: expenseDate,
-                                            isEssential: isEssential,
-                                            notes: notes,
-                                            reminder: reminder,
-                                            interestRate: selectedCategory == .savings ? interestRate : nil,
-                                            expectedAnnualReturn: selectedCategory == .savings ? expectedAnnualReturn : nil,
-                                            currentBalance: selectedCategory == .savings ? currentBalance : nil
+
+                                    #Preview {
+                                        let sampleExpense = Expense(
+                                            name: "Rent",
+                                            amount: 500,
+                                            currency: .gbp,
+                                            category: .housing,
+                                            isEssential: true
                                         )
                                         
-                                        // Update expense in view model
-                                        viewModel.updateExpense(updatedExpense, in: budgetId)
-                                        
-                                        // Dismiss the view
-                                        dismiss()
+                                        return EditExpenseView(budgetId: UUID(), expense: sampleExpense, startYear: 2023)
+                                            .environmentObject(BudgetViewModel())
+                                            .preferredColorScheme(.dark)
                                     }
-                                }
-
-                                #Preview {
-                                    let sampleExpense = Expense(
-                                        name: "Rent",
-                                        amount: 500,
-                                        currency: .gbp,
-                                        category: .housing,
-                                        isEssential: true
-                                    )
-                                    
-                                    return EditExpenseView(budgetId: UUID(), expense: sampleExpense, startYear: 2023)
-                                        .environmentObject(BudgetViewModel())
-                                        .preferredColorScheme(.dark)
-                                }

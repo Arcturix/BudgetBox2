@@ -229,12 +229,12 @@ struct AddExpenseView: View {
             
             cardView {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Current Balance")
+                    Text("Starting Balance")
                         .font(.subheadline)
                         .foregroundColor(secondaryTextColor)
                     
                     HStack {
-                        TextField("Current savings amount", value: $currentSavingsBalance, format: .number)
+                        TextField("Initial savings amount", value: $currentSavingsBalance, format: .number)
                             .keyboardType(.decimalPad)
                             .foregroundColor(textColor)
                             .padding(.vertical, 8)
@@ -388,7 +388,7 @@ struct AddExpenseView: View {
             reminder: reminder,
             interestRate: selectedCategory == .savings ? interestRate : nil,
             expectedAnnualReturn: selectedCategory == .savings ? expectedAnnualReturn : nil,
-            currentBalance: selectedCategory == .savings ? currentSavingsBalance : nil
+            startingBalance: selectedCategory == .savings ? currentSavingsBalance : nil
         )
         
         // Add expense to the viewModel
