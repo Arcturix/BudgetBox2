@@ -26,6 +26,7 @@ struct ExpenseRow: View {
                         .font(.system(size: 16))
                 }
                 
+                
                 // Expense details
                 VStack(alignment: .leading, spacing: 4) {
                     // Title row
@@ -47,8 +48,8 @@ struct ExpenseRow: View {
                                 .font(.caption)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.blue.opacity(0.2))
-                                .foregroundColor(.blue)
+                                .background(Color(hex: budgetColorHex).opacity(0.2))
+                                .foregroundColor(Color(hex: budgetColorHex))
                                 .cornerRadius(4)
                         }
                     }
@@ -133,6 +134,10 @@ struct ExpenseRow: View {
         }
         .background(showNotes ? Color.gray.opacity(0.15) : Color.clear)
         .cornerRadius(10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.gray.opacity(0.3), lineWidth: 0.5)
+        )
     }
 }
 

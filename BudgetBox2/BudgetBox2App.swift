@@ -1,18 +1,29 @@
+// BudgetBox2/BudgetBoxApp.swift
+
 import SwiftUI
 
 @main
 struct BudgetBoxApp: App {
     @StateObject private var budgetViewModel = BudgetViewModel()
+    @AppStorage("colorScheme") private var colorScheme: Int = 0 // 0: system, 1: light, 2: dark
     
     var body: some Scene {
         WindowGroup {
             HomeView()
                 .environmentObject(budgetViewModel)
-                .preferredColorScheme(.dark)
+                .preferredColorScheme(colorSchemeValue)
                 .onAppear {
                     // Hide keyboard when tapped outside of text field
                     UITapGestureRecognizer.endEditingOnTap()
                 }
+        }
+    }
+    
+    var colorSchemeValue: ColorScheme? {
+        switch colorScheme {
+        case 1: return .light
+        case 2: return .dark
+        default: return nil // System default
         }
     }
 }

@@ -1,3 +1,5 @@
+// Views/Screens/HomeView.swift
+
 import SwiftUI
 
 struct HomeView: View {
@@ -7,13 +9,13 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(hex: "383C51")
+                ThemeManager.Colors.primary
                     .ignoresSafeArea()
                 
                 VStack(alignment: .leading, spacing: 10) {
                     // App Title
                     Text("BudgetBox")
-                        .foregroundColor(.gray)
+                        .foregroundColor(ThemeManager.Colors.secondaryText)
                         .padding(.horizontal)
                     
                     // Header with Controls
@@ -21,7 +23,7 @@ struct HomeView: View {
                         Text("My Budgets")
                             .font(.largeTitle)
                             .bold()
-                            .foregroundColor(.white)
+                            .foregroundColor(ThemeManager.Colors.primaryText)
                             .padding(.horizontal)
                         
                         Spacer()
@@ -31,7 +33,7 @@ struct HomeView: View {
                             viewModel.toggleShowValues()
                         }) {
                             Image(systemName: viewModel.showValuesEnabled ? "eye.fill" : "eye.slash.fill")
-                                .foregroundColor(.white)
+                                .foregroundColor(ThemeManager.Colors.primaryText)
                                 .font(.title2)
                         }
                         .padding(.horizontal)
@@ -48,7 +50,7 @@ struct HomeView: View {
                                     .padding(.horizontal)
                             } else {
                                 Image(systemName: "person.crop.circle")
-                                    .foregroundColor(.white)
+                                    .foregroundColor(ThemeManager.Colors.primaryText)
                                     .font(.title)
                                     .padding(.horizontal)
                             }
@@ -95,7 +97,7 @@ struct HomeView: View {
                         .padding()
                         .background(
                             LinearGradient(
-                                gradient: Gradient(colors: [Color(hex: "FF5E7D"), Color(hex: "A169F7")]),
+                                gradient: Gradient(colors: [ThemeManager.Colors.secondaryAccent, ThemeManager.Colors.accent]),
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
@@ -115,10 +117,8 @@ struct HomeView: View {
     }
 }
 
-// Fixed preview implementation to conform to expected syntax
 #Preview {
     let viewModel = BudgetViewModel()
     return HomeView()
         .environmentObject(viewModel)
-        .preferredColorScheme(.dark)
 }

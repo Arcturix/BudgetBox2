@@ -30,20 +30,159 @@ struct BudgetDetailView: View {
     var body: some View {
         ZStack {
             // Background
-            BudgetDetailBackground()
+            ThemeManager.Colors.primary
+                .ignoresSafeArea()
             
             if let budget = budget {
                 VStack(alignment: .leading, spacing: 0) {
                     // Header
-                    BudgetDetailHeader(budget: budget)
+                    VStack(alignment: .leading) {
+                        Text("Budget Plan")
+                            .foregroundColor(ThemeManager.Colors.secondaryText)
+                            .padding(.horizontal)
+
+                        HStack {
+                            Text(budget.name)
+                                .font(.largeTitle)
+                                .bold()
+                                .foregroundColor(ThemeManager.Colors.primaryText)
+                                .padding(.horizontal)
+
+                            Spacer()
+
+                            // Move the circle inside the HStack's bounds
+                            Circle()
+                                .fill(Color(hex: budget.colorHex))
+                                .frame(width: 50, height: 50)
+                                .overlay(
+                                    Image(systemName: budget.iconName)
+                                        .font(.title2)
+                                        .foregroundColor(.white)
+                                )
+                                .padding(.trailing) // Add trailing padding to keep it from the edge
+                        }
+                        .padding(.bottom, 8) // Add bottom padding to create space between header and cards
+                    }
                     
                     // Budget Summary Cards
-                    BudgetSummaryCards(
-                        budget: budget,
-                        showValuesEnabled: viewModel.showValuesEnabled,
-                        showTotalExpense: showTotalExpense,
-                        onToggleShowTotalExpense: { showTotalExpense.toggle() }
-                    )
+                    HStack(spacing: 20) {
+                        // Total Budget Card
+                        VStack(alignment: .leading, spacing: 5) {
+                            HStack {
+                                Image(systemName: "arrow.down")
+                                    .foregroundColor(.white)
+                                    .opacity(0.7)
+
+                                Text("Total Budget")
+                                    .foregroundColor(.white)
+                                    .opacity(0.7)
+                                    .font(.caption)
+                            }
+
+                            if viewModel.showValuesEnabled {
+                                Text(budget.amount.formatted(.currency(code: budget.currency.rawValue)))
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            } else {
+                                Text("****")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .padding()
+                        .frame(width: 180, height: 100, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(
+                            ZStack {
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color(hex: budget.colorHex),
+                                        Color(hex: budget.colorHex).opacity(0.7)
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+
+                                // Use the appropriate currency icon based on budget currency
+                                Image(systemName: currencyIconName(for: budget.currency))
+                                    .resizable()
+                                    .scaledToFit()
+                                    .foregroundColor(.white.opacity(0.1))
+                                    .frame(width: 100, height: 100)
+                                    .position(x: UIScreen.main.bounds.width * 0.36, y: 50)
+                            }
+                        )
+                        .cornerRadius(16)
+                        .shadow(color: Color(hex: budget.colorHex).opacity(0.4), radius: 10, x: 0, y: 4)
+
+                        // Expenses/Remaining Card
+                        VStack(alignment: .leading, spacing: 5) {
+                            HStack {
+                                Image(systemName: "arrow.up")
+                                    .foregroundColor(.white)
+                                    .opacity(0.7)
+
+                                Text(showTotalExpense ? "Total Expense" : "Remaining Budget")
+                                    .foregroundColor(.white)
+                                    .opacity(0.7)
+                                    .font(.caption)
+                            }
+
+                            if viewModel.showValuesEnabled {
+                                Button(action: { showTotalExpense.toggle() }) {
+                                    VStack(alignment: .leading, spacing: 0) {
+                                        if showTotalExpense {
+                                            Text((budget.amount - budget.remainingAmount).formatted(.currency(code: budget.currency.rawValue)))
+                                                .font(.title2)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.white)
+                                        } else {
+                                            Text(budget.remainingAmount.formatted(.currency(code: budget.currency.rawValue)))
+                                                .font(.title2)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.white)
+
+                                            Text("\(Int((budget.remainingAmount / budget.amount) * 100))% Remaining")
+                                                .font(.caption)
+                                                .foregroundColor(.white.opacity(0.7))
+                                        }
+                                    }
+                                }
+                            } else {
+                                Text("****")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .padding()
+                        .frame(width: 180, height: 100, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(
+                            ZStack {
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color(hex: budget.colorHex).opacity(0.7),
+                                        Color(hex: budget.colorHex).opacity(0.4)
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+
+                                Image(systemName: "creditcard")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .foregroundColor(.white.opacity(0.05))
+                                    .frame(width: 100, height: 100)
+                                    .position(x: UIScreen.main.bounds.width * 0.36, y: 50)
+                            }
+                        )
+                        .cornerRadius(16)
+                        .shadow(color: Color(hex: budget.colorHex).opacity(0.4), radius: 10, x: 0, y: 4)
+                    }
+                    .padding(.horizontal)
                     
                     Spacer().frame(height: 20)
                     
@@ -70,12 +209,12 @@ struct BudgetDetailView: View {
                 VStack {
                     Text("Budget not found")
                         .font(.title)
-                        .foregroundColor(.white)
+                        .foregroundColor(ThemeManager.Colors.primaryText)
                     
                     NavigationLink(destination: HomeView()) {
                         Text("Go to Home")
                             .padding()
-                            .background(Color.blue)
+                            .background(ThemeManager.Colors.accent)
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
@@ -111,6 +250,22 @@ struct BudgetDetailView: View {
         .id(refreshID) // Force view to refresh when refreshID changes
     }
     
+    // MARK: - Helper Functions
+    
+    // Function to get the appropriate currency icon name
+    private func currencyIconName(for currency: Currency) -> String {
+        switch currency {
+        case .usd:
+            return "dollarsign"
+        case .eur:
+            return "eurosign"
+        case .gbp:
+            return "sterlingsign"
+        case .jpy:
+            return "yensign"
+        }
+    }
+    
     // MARK: - UI Components
     
     private var budgetMenuButton: some View {
@@ -126,7 +281,7 @@ struct BudgetDetailView: View {
             }
         } label: {
             Image(systemName: "ellipsis")
-                .foregroundColor(.white)
+                .foregroundColor(ThemeManager.Colors.primaryText)
         }
     }
     
@@ -134,33 +289,112 @@ struct BudgetDetailView: View {
     private func expensesTabContent(budget: Budget) -> some View {
         VStack {
             // Budget Items List
-            BudgetItemsList(
-                expenses: sortedExpenses,
-                isEmpty: sortedExpenses.isEmpty,
-                itemCount: budget.expenses.count,
-                budgetItemLimitEnabled: viewModel.budgetItemLimitEnabled,
-                showValuesEnabled: viewModel.showValuesEnabled,
-                budgetCurrency: budget.currency,
-                budgetColorHex: budget.colorHex,
-                onDeleteExpense: { expenseId in
-                    viewModel.deleteExpense(id: expenseId, from: budget.id)
-                },
-                onEditExpense: { expense in
-                    expenseToEdit = expense
-                },
-                refreshID: refreshID
-            )
+            VStack(alignment: .leading) {
+                HStack {
+                    Text("Budget Items")
+                        .foregroundColor(ThemeManager.Colors.primaryText)
+                        .font(.headline)
+
+                    Spacer()
+
+                    if viewModel.budgetItemLimitEnabled {
+                        Text("\(budget.expenses.count)/10")
+                            .foregroundColor(budget.expenses.count >= 10 ? .orange : ThemeManager.Colors.secondaryText)
+                    } else {
+                        Text("\(budget.expenses.count) items")
+                            .foregroundColor(ThemeManager.Colors.secondaryText)
+                    }
+                }
+                .padding(.horizontal)
+                .id(refreshID) // Force header to refresh when expenses change
+
+                if sortedExpenses.isEmpty {
+                    Text("No expenses yet")
+                        .foregroundColor(ThemeManager.Colors.secondaryText)
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .id("empty-\(refreshID)") // Force empty state to refresh
+                } else {
+                    List {
+                        ForEach(sortedExpenses) { expense in
+                            ExpenseRow(
+                                expense: expense,
+                                showValues: viewModel.showValuesEnabled,
+                                budgetCurrency: budget.currency,
+                                budgetColorHex: budget.colorHex
+                            )
+                            .listRowBackground(ThemeManager.Colors.tertiary)
+                            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    withAnimation {
+                                        viewModel.deleteExpense(id: expense.id, from: budget.id)
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                            .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                                Button {
+                                    expenseToEdit = expense
+                                } label: {
+                                    Label("Edit", systemImage: "pencil")
+                                }
+                                .tint(.blue)
+                            }
+                            .id("expense-\(expense.id)-\(refreshID)") // Force each row to refresh when needed
+                        }
+                        .listRowSeparator(.hidden)
+                    }
+                    .listStyle(PlainListStyle())
+                    .background(ThemeManager.Colors.primary)
+                    .scrollContentBackground(.hidden)
+                    .id("list-\(refreshID)") // Use refresh ID to force list view updates
+                    .animation(.default, value: sortedExpenses.count) // Animate changes in the list count
+                }
+            }
             
             Spacer()
             
             // Add Budget Item Button
-            AddBudgetItemButton(
-                colorHex: budget.colorHex,
-                isDisabled: isAddButtonDisabled,
-                budgetItemLimitEnabled: viewModel.budgetItemLimitEnabled,
-                itemCount: budget.expenses.count,
-                onAddItem: { isShowingAddExpenseSheet = true }
-            )
+            VStack {
+                Button(action: { isShowingAddExpenseSheet = true }) {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+
+                        Text("Add Budget Item")
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                isAddButtonDisabled ? Color.gray : Color(hex: budget.colorHex),
+                                isAddButtonDisabled ? Color.gray.opacity(0.7) : Color(hex: budget.colorHex).opacity(0.7)
+                            ]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .foregroundColor(.white)
+                    .cornerRadius(30)
+                    .padding(.horizontal)
+                    .padding(.bottom)
+                }
+                .disabled(isAddButtonDisabled)
+                .opacity(isAddButtonDisabled ? 0.6 : 1.0)
+
+                if viewModel.budgetItemLimitEnabled && budget.expenses.count >= 10 {
+                    Text("Maximum of 10 items reached. Disable limit in Profile.")
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.bottom)
+                }
+            }
         }
     }
     
@@ -190,7 +424,7 @@ struct BudgetDetailView: View {
             Spacer()
         }
         .padding(.vertical, 8)
-        .background(Color(.secondarySystemBackground))
+        .background(ThemeManager.Colors.secondary)
     }
     
     private func tabButton(title: String, icon: String, isSelected: Bool, colorHex: String, action: @escaping () -> Void) -> some View {
@@ -205,7 +439,7 @@ struct BudgetDetailView: View {
                 Text(title)
                     .font(.caption)
             }
-            .foregroundColor(isSelected ? Color(hex: colorHex) : .gray)
+            .foregroundColor(isSelected ? Color(hex: colorHex) : ThemeManager.Colors.secondaryText)
             .padding(.vertical, 8)
             .padding(.horizontal, 16)
             .background(
@@ -259,49 +493,4 @@ struct BudgetDetailView: View {
         BudgetDetailView(budgetId: sampleBudget.id)
             .environmentObject(viewModel)
     }
-    .preferredColorScheme(.dark)
-}
-
-#Preview {
-    let sampleExpenses = [
-        Expense(
-            name: "Groceries",
-            amount: 100.0,
-            currency: .usd,
-            category: .food,
-            date: Date(),
-            isEssential: true,
-            notes: "Weekly grocery shopping"
-        ),
-        Expense(
-            name: "Netflix",
-            amount: 15.99,
-            currency: .usd,
-            category: .entertainment,
-            date: Date().addingTimeInterval(-86400),
-            isEssential: false,
-            notes: "Monthly subscription"
-        )
-    ]
-    
-    let sampleBudget = Budget(
-        name: "Monthly Budget",
-        amount: 1000.0,
-        currency: .usd,
-        iconName: "dollarsign.circle",
-        colorHex: "A169F7",
-        isMonthly: true,
-        expenses: sampleExpenses,
-        startMonth: 1,
-        startYear: 2023
-    )
-    
-    let viewModel = BudgetViewModel()
-    viewModel.addBudget(sampleBudget)
-    
-    return NavigationView {
-        BudgetDetailView(budgetId: sampleBudget.id)
-            .environmentObject(viewModel)
-    }
-    .preferredColorScheme(.dark)
 }

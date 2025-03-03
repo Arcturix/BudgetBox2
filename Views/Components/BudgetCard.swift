@@ -1,8 +1,11 @@
+// Views/Components/BudgetCard.swift
+
 import SwiftUI
 
 struct BudgetCard: View {
     let budget: Budget
     let showValues: Bool
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -18,11 +21,11 @@ struct BudgetCard: View {
                 VStack(alignment: .leading) {
                     Text(budget.name)
                         .font(.title2)
-                        .foregroundColor(.white)
+                        .foregroundColor(ThemeManager.Colors.primaryText)
                     
                     Text(budget.isMonthly ? "Monthly Budget" : "One-time Budget")
                         .font(.body)
-                        .foregroundColor(.gray)
+                        .foregroundColor(ThemeManager.Colors.secondaryText)
                 }
                 
                 Spacer()
@@ -32,12 +35,12 @@ struct BudgetCard: View {
                     Text("\(budget.amount.formatted(.currency(code: budget.currency.rawValue)))")
                         .font(.title3)
                         .bold()
-                        .foregroundColor(.white)
+                        .foregroundColor(ThemeManager.Colors.primaryText)
                 } else {
                     Text("****")
                         .font(.title3)
                         .bold()
-                        .foregroundColor(.white)
+                        .foregroundColor(ThemeManager.Colors.primaryText)
                 }
             }
             
@@ -52,7 +55,7 @@ struct BudgetCard: View {
             HStack {
                 Text("Remaining")
                     .font(.body)
-                    .foregroundColor(.gray)
+                    .foregroundColor(ThemeManager.Colors.secondaryText)
                 
                 Spacer()
                 
@@ -68,11 +71,11 @@ struct BudgetCard: View {
                 
                 Text("\(budget.percentRemaining)%")
                     .font(.body)
-                    .foregroundColor(.gray)
+                    .foregroundColor(ThemeManager.Colors.secondaryText)
             }
         }
         .padding(20)
-        .background(Color.gray.opacity(0.1))
+        .background(ThemeManager.Colors.tertiary)
         .cornerRadius(20)
     }
 }
@@ -112,11 +115,13 @@ struct BudgetProgressBar: View {
         startYear: 2023
     )
     
-    return VStack {
+    return Group {
         BudgetCard(budget: sampleBudget, showValues: true)
+            .padding()
+            .preferredColorScheme(.light)
+        
         BudgetCard(budget: sampleBudget, showValues: false)
+            .padding()
+            .preferredColorScheme(.dark)
     }
-    .padding()
-    .background(Color(hex: "383C51"))
-    .preferredColorScheme(.dark)
 }

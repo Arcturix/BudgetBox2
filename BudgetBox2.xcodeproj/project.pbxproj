@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA1138932D75A8FB0076D6E8 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1138922D75A8F70076D6E8 /* ThemeManager.swift */; };
 		AA3AD1A62D733F1100556712 /* BudgetDetailComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3AD1A52D733F0500556712 /* BudgetDetailComponents.swift */; };
 		AA3AD1A82D737ADA00556712 /* SavingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3AD1A72D737AD600556712 /* SavingsView.swift */; };
 		AA3AD1AA2D738B2800556712 /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3AD1A92D738B2200556712 /* AnalysisView.swift */; };
@@ -49,6 +50,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		AA1138922D75A8F70076D6E8 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		AA3AD1A52D733F0500556712 /* BudgetDetailComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetDetailComponents.swift; sourceTree = "<group>"; };
 		AA3AD1A72D737AD600556712 /* SavingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavingsView.swift; sourceTree = "<group>"; };
 		AA3AD1A92D738B2200556712 /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
@@ -157,6 +159,7 @@
 		AAE312BE2D6F785900ACD756 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				AA1138922D75A8F70076D6E8 /* ThemeManager.swift */,
 				AAE312C92D6F78D100ACD756 /* Extentions.swift */,
 				AAE312C82D6F78C100ACD756 /* UserDefaultsManager.swift */,
 			);
@@ -381,6 +384,7 @@
 				AAE312DC2D6F7A2E00ACD756 /* IconPicker.swift in Sources */,
 				AA3AD1A82D737ADA00556712 /* SavingsView.swift in Sources */,
 				AAE312DD2D6F7A2E00ACD756 /* BudgetCard.swift in Sources */,
+				AA1138932D75A8FB0076D6E8 /* ThemeManager.swift in Sources */,
 				AAE312DE2D6F7A2E00ACD756 /* ExpenseRow.swift in Sources */,
 				AAE312DF2D6F7A2E00ACD756 /* CurrencyPicker.swift in Sources */,
 				AAE312D42D6F7A1600ACD756 /* Expense.swift in Sources */,
@@ -550,6 +554,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"BudgetBox2/Preview Content\"";
@@ -561,8 +566,9 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -581,6 +587,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"BudgetBox2/Preview Content\"";
@@ -592,8 +599,9 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
