@@ -3,22 +3,25 @@ import SwiftUI
 import Combine
 
 class BudgetViewModel: ObservableObject {
+    // MARK: - Published Properties
     @Published var budgets: [Budget] = []
     @Published var showValuesEnabled: Bool = true
     @Published var userAvatar: Data?
     @Published var budgetItemLimitEnabled: Bool = true
     
+    // MARK: - Private Properties
     private let saveKey = "saved_budgets"
     private let userDefaultsManager = UserDefaultsManager()
     
     // For reactive state updates
     public var _stateUpdatePublisher: PassthroughSubject<UUID, Never>?
-
     
+    // MARK: - Initialization
     init() {
         loadData()
     }
     
+    // MARK: - Data Management
     func loadData() {
         budgets = userDefaultsManager.load(key: saveKey) ?? []
         showValuesEnabled = userDefaultsManager.load(key: "show_values") ?? true
@@ -35,6 +38,7 @@ class BudgetViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Budget Operations
     func addBudget(_ budget: Budget) {
         budgets.append(budget)
         saveData()
@@ -44,6 +48,7 @@ class BudgetViewModel: ObservableObject {
         if let index = budgets.firstIndex(where: { $0.id == budget.id }) {
             budgets[index] = budget
             saveData()
+            triggerStateUpdate(for: budget.id)
         }
     }
     
@@ -59,6 +64,7 @@ class BudgetViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Expense Operations
     func addExpense(_ expense: Expense, to budgetId: UUID) {
         if let index = budgets.firstIndex(where: { $0.id == budgetId }) {
             // Check if limit is reached and enabled
@@ -73,37 +79,8 @@ class BudgetViewModel: ObservableObject {
             // Save data to UserDefaults
             saveData()
             
-            // Post multiple notifications with highest priority dispatch
-            DispatchQueue.main.async {
-                // Post notification that budget data has changed
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("BudgetViewModelUpdated"),
-                    object: nil
-                )
-                
-                // Post notification that an expense was added to a specific budget
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("ExpenseAdded"),
-                    object: nil,
-                    userInfo: ["budgetId": budgetId]
-                )
-                
-                // Post general refresh notification
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("RefreshBudgetDetail"),
-                    object: nil
-                )
-                
-                // Post force refresh notification
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("ForceRefreshBudget"),
-                    object: nil,
-                    userInfo: ["budgetId": budgetId]
-                )
-            }
-            
             // Trigger reactive state update
-            self.triggerStateUpdate(for: budgetId)
+            triggerStateUpdate(for: budgetId)
         }
     }
     
@@ -116,37 +93,8 @@ class BudgetViewModel: ObservableObject {
             // Save data to UserDefaults
             saveData()
             
-            // Post multiple notifications with highest priority dispatch
-            DispatchQueue.main.async {
-                // Post notification that budget data has changed
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("BudgetViewModelUpdated"),
-                    object: nil
-                )
-                
-                // Post notification that an expense was edited in a specific budget
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("ExpenseEdited"),
-                    object: nil,
-                    userInfo: ["budgetId": budgetId]
-                )
-                
-                // Post general refresh notification
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("RefreshBudgetDetail"),
-                    object: nil
-                )
-                
-                // Post force refresh notification
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("ForceRefreshBudget"),
-                    object: nil,
-                    userInfo: ["budgetId": budgetId]
-                )
-            }
-            
             // Trigger reactive state update
-            self.triggerStateUpdate(for: budgetId)
+            triggerStateUpdate(for: budgetId)
         }
     }
     
@@ -158,40 +106,12 @@ class BudgetViewModel: ObservableObject {
             // Save data to UserDefaults
             saveData()
             
-            // Post multiple notifications with highest priority dispatch
-            DispatchQueue.main.async {
-                // Post notification that budget data has changed
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("BudgetViewModelUpdated"),
-                    object: nil
-                )
-                
-                // Post notification that an expense was deleted from a specific budget
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("ExpenseDeleted"),
-                    object: nil,
-                    userInfo: ["budgetId": budgetId]
-                )
-                
-                // Post general refresh notification
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("RefreshBudgetDetail"),
-                    object: nil
-                )
-                
-                // Post force refresh notification
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("ForceRefreshBudget"),
-                    object: nil,
-                    userInfo: ["budgetId": budgetId]
-                )
-            }
-            
             // Trigger reactive state update
-            self.triggerStateUpdate(for: budgetId)
+            triggerStateUpdate(for: budgetId)
         }
     }
     
+    // MARK: - User Preferences
     func toggleShowValues() {
         showValuesEnabled.toggle()
         saveData()

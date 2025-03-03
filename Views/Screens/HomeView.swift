@@ -11,10 +11,12 @@ struct HomeView: View {
                     .ignoresSafeArea()
                 
                 VStack(alignment: .leading, spacing: 10) {
+                    // App Title
                     Text("BudgetBox")
                         .foregroundColor(.gray)
                         .padding(.horizontal)
                     
+                    // Header with Controls
                     HStack {
                         Text("My Budgets")
                             .font(.largeTitle)
@@ -24,6 +26,7 @@ struct HomeView: View {
                         
                         Spacer()
                         
+                        // Show/Hide Values Button
                         Button(action: {
                             viewModel.toggleShowValues()
                         }) {
@@ -33,18 +36,17 @@ struct HomeView: View {
                         }
                         .padding(.horizontal)
                         
-                        if let avatarData = viewModel.userAvatar,
-                           let uiImage = UIImage(data: avatarData) {
-                            NavigationLink(destination: ProfileView().environmentObject(viewModel)) {
+                        // Profile Button
+                        NavigationLink(destination: ProfileView().environmentObject(viewModel)) {
+                            if let avatarData = viewModel.userAvatar,
+                               let uiImage = UIImage(data: avatarData) {
                                 Image(uiImage: uiImage)
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: 40, height: 40)
                                     .clipShape(Circle())
                                     .padding(.horizontal)
-                            }
-                        } else {
-                            NavigationLink(destination: ProfileView().environmentObject(viewModel)) {
+                            } else {
                                 Image(systemName: "person.crop.circle")
                                     .foregroundColor(.white)
                                     .font(.title)
@@ -53,6 +55,7 @@ struct HomeView: View {
                         }
                     }
                     
+                    // Budget List
                     ScrollView {
                         LazyVStack(spacing: 16) {
                             ForEach(viewModel.budgets) { budget in
@@ -61,9 +64,7 @@ struct HomeView: View {
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .contextMenu {
-                                    Button(action: {
-                                        // Edit budget
-                                    }) {
+                                    NavigationLink(destination: EditBudgetView(budget: budget)) {
                                         Label("Edit", systemImage: "pencil")
                                     }
                                     
@@ -78,6 +79,7 @@ struct HomeView: View {
                         }
                     }
                     
+                    // Add Budget Button
                     Button(action: {
                         showingAddBudget = true
                     }) {
@@ -111,14 +113,12 @@ struct HomeView: View {
             .navigationBarHidden(true)
         }
     }
-    
-    struct HomeView_Previews: PreviewProvider {
-        static var previews: some View {
-            let viewModel = BudgetViewModel()
-            
-            return HomeView()
-                .environmentObject(viewModel)
-                .preferredColorScheme(.dark)
-        }
-    }
+}
+
+// Fixed preview implementation to conform to expected syntax
+#Preview {
+    let viewModel = BudgetViewModel()
+    return HomeView()
+        .environmentObject(viewModel)
+        .preferredColorScheme(.dark)
 }

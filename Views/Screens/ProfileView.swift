@@ -47,7 +47,7 @@ struct ProfileView: View {
                 
                 // Settings Section
                 VStack(spacing: 15) {
-                    // Existing Toggle
+                    // Show Values Toggle
                     Toggle(isOn: $viewModel.showValuesEnabled) {
                         Text("Show Amount Values")
                             .foregroundColor(.white)
@@ -56,11 +56,9 @@ struct ProfileView: View {
                     .padding()
                     .background(Color.gray.opacity(0.2))
                     .cornerRadius(10)
-                    .onChange(of: viewModel.showValuesEnabled) { _, _ in
-                        viewModel.saveData()
-                    }
+                    .onChange(of: viewModel.showValuesEnabled) { viewModel.saveData() }
                     
-                    // New Budget Limit Toggle for Development
+                    // Budget Item Limit Toggle
                     VStack(alignment: .leading, spacing: 5) {
                         Toggle(isOn: $viewModel.budgetItemLimitEnabled) {
                             VStack(alignment: .leading, spacing: 4) {
@@ -73,9 +71,7 @@ struct ProfileView: View {
                             }
                         }
                         .toggleStyle(SwitchToggleStyle(tint: Color(hex: "A169F7")))
-                        .onChange(of: viewModel.budgetItemLimitEnabled) { _, _ in
-                            viewModel.saveData()
-                        }
+                        .onChange(of: viewModel.budgetItemLimitEnabled) { viewModel.saveData() }
                         
                         if !viewModel.budgetItemLimitEnabled {
                             Text("Developer Mode: Unlimited items enabled")
@@ -93,10 +89,9 @@ struct ProfileView: View {
             }
             .padding()
         }
-        // Updated onChange for iOS 17 compatibility
-        .onChange(of: selectedItem) { _, newValue in
+        .onChange(of: selectedItem) {
             Task {
-                if let data = try? await newValue?.loadTransferable(type: Data.self) {
+                if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
                     selectedImageData = data
                     viewModel.setUserAvatar(data)
                 }
@@ -111,5 +106,6 @@ struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
         ProfileView()
             .environmentObject(BudgetViewModel())
+            .preferredColorScheme(.dark)
     }
 }

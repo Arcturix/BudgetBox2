@@ -32,6 +32,12 @@ extension BudgetViewModel: ReactiveStateUpdate {
     func triggerStateUpdate(for budgetId: UUID) {
         DispatchQueue.main.async {
             self.stateUpdatePublisher.send(budgetId)
+            // Also post notification for backward compatibility
+            NotificationCenter.default.post(
+                name: NSNotification.Name("ForceRefreshBudget"),
+                object: nil,
+                userInfo: ["budgetId": budgetId]
+            )
         }
     }
 }
