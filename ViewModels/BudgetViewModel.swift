@@ -64,6 +64,18 @@ class BudgetViewModel: ObservableObject {
         }
     }
     
+    func duplicateBudget(id: UUID) {
+        if let budgetToDuplicate = budgets.first(where: { $0.id == id }) {
+            var newBudget = budgetToDuplicate
+            newBudget.id = UUID() // Generate a new UUID
+            newBudget.name = "\(budgetToDuplicate.name) (Copy)"
+            
+            // Add the duplicated budget
+            budgets.append(newBudget)
+            saveData()
+        }
+    }
+    
     // MARK: - Expense Operations
     func addExpense(_ expense: Expense, to budgetId: UUID) {
         if let index = budgets.firstIndex(where: { $0.id == budgetId }) {

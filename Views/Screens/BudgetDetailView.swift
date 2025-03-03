@@ -274,6 +274,12 @@ struct BudgetDetailView: View {
                 isShowingEditBudgetView = true
             }
             
+            Button("Duplicate Budget") {
+                if let budget = budget {
+                    viewModel.duplicateBudget(id: budget.id)
+                }
+            }
+            
             Button("Delete Budget", role: .destructive) {
                 if let budget = budget {
                     viewModel.deleteBudget(id: budget.id)
