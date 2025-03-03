@@ -97,7 +97,7 @@ struct HomeView: View {
                         .padding()
                         .background(
                             LinearGradient(
-                                gradient: Gradient(colors: [ThemeManager.Colors.secondaryAccent, ThemeManager.Colors.accent]),
+                                gradient: Gradient(colors: [ThemeManager.Colors.secondaryAccent, ThemeManager.Colors.secondaryAccent]),
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
