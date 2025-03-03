@@ -28,7 +28,6 @@
 		AAE312E02D6F7A3300ACD756 /* BudgetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAE312C72D6F78B000ACD756 /* BudgetViewModel.swift */; };
 		AAE312E12D6F7A3900ACD756 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAE312C82D6F78C100ACD756 /* UserDefaultsManager.swift */; };
 		AAE312E22D6F7A3900ACD756 /* Extentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAE312C92D6F78D100ACD756 /* Extentions.swift */; };
-		AAE312E42D6F7DB900ACD756 /* TestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAE312E32D6F7DB500ACD756 /* TestView.swift */; };
 		AAE312E62D6F826500ACD756 /* EditExpenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAE312E52D6F825D00ACD756 /* EditExpenseView.swift */; };
 /* End PBXBuildFile section */
 
@@ -75,7 +74,6 @@
 		AAE312D12D6F794000ACD756 /* BudgetDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetDetailView.swift; sourceTree = "<group>"; };
 		AAE312D22D6F798400ACD756 /* AddExpenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseView.swift; sourceTree = "<group>"; };
 		AAE312D32D6F799200ACD756 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
-		AAE312E32D6F7DB500ACD756 /* TestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestView.swift; sourceTree = "<group>"; };
 		AAE312E52D6F825D00ACD756 /* EditExpenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditExpenseView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -184,7 +182,6 @@
 		AAE312C12D6F786D00ACD756 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				AAE312E32D6F7DB500ACD756 /* TestView.swift */,
 				AAE312C32D6F787700ACD756 /* Screens */,
 				AAE312C22D6F787100ACD756 /* Components */,
 			);
@@ -384,7 +381,6 @@
 				AAE312DC2D6F7A2E00ACD756 /* IconPicker.swift in Sources */,
 				AA3AD1A82D737ADA00556712 /* SavingsView.swift in Sources */,
 				AAE312DD2D6F7A2E00ACD756 /* BudgetCard.swift in Sources */,
-				AAE312E42D6F7DB900ACD756 /* TestView.swift in Sources */,
 				AAE312DE2D6F7A2E00ACD756 /* ExpenseRow.swift in Sources */,
 				AAE312DF2D6F7A2E00ACD756 /* CurrencyPicker.swift in Sources */,
 				AAE312D42D6F7A1600ACD756 /* Expense.swift in Sources */,

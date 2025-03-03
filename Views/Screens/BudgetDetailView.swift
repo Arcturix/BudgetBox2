@@ -9,7 +9,7 @@ struct BudgetDetailView: View {
     @State private var isShowingAddExpenseSheet = false
     @State private var isShowingEditBudgetView = false
     @State private var expenseToEdit: Expense?
-    @State private var showTotalExpense = true
+    @State private var showTotalExpense = false // This shows the alternative view first
     @State private var refreshID = UUID() // Used for forcing view updates
     
     // MARK: - Computed Properties
@@ -216,6 +216,50 @@ struct BudgetDetailView: View {
             .cornerRadius(8)
         }
     }
+}
+
+#Preview {
+    let sampleExpenses = [
+        Expense(
+            name: "Groceries",
+            amount: 100.0,
+            currency: .usd,
+            category: .food,
+            date: Date(),
+            isEssential: true,
+            notes: "Weekly grocery shopping"
+        ),
+        Expense(
+            name: "Netflix",
+            amount: 15.99,
+            currency: .usd,
+            category: .entertainment,
+            date: Date().addingTimeInterval(-86400),
+            isEssential: false,
+            notes: "Monthly subscription"
+        )
+    ]
+    
+    let sampleBudget = Budget(
+        name: "Monthly Budget",
+        amount: 1000.0,
+        currency: .usd,
+        iconName: "dollarsign.circle",
+        colorHex: "A169F7",
+        isMonthly: true,
+        expenses: sampleExpenses,
+        startMonth: 1,
+        startYear: 2023
+    )
+    
+    let viewModel = BudgetViewModel()
+    viewModel.addBudget(sampleBudget)
+    
+    return NavigationView {
+        BudgetDetailView(budgetId: sampleBudget.id)
+            .environmentObject(viewModel)
+    }
+    .preferredColorScheme(.dark)
 }
 
 #Preview {

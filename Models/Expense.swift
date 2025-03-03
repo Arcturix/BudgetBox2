@@ -100,7 +100,7 @@ enum ExpenseCategory: String, Codable, CaseIterable, Hashable {
         case .housing: return "FF5252" // Red
         case .food: return "4CAF50"    // Green
         case .transportation: return "2196F3" // Blue
-        case .utilities: return "FFC107" // Amber
+        case .utilities: return "FF5252" // Red
         case .entertainment: return "9C27B0" // Purple
         case .healthcare: return "E91E63" // Pink
         case .shopping: return "FF9800" // Orange

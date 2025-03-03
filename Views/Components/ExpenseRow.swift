@@ -47,8 +47,8 @@ struct ExpenseRow: View {
                                 .font(.caption)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.blue.opacity(0.2))
-                                .foregroundColor(.blue)
+                                .background(Color(hex: budgetColorHex).opacity(0.2))
+                                .foregroundColor(Color(hex: budgetColorHex))
                                 .cornerRadius(4)
                         }
                     }
