@@ -11,6 +11,10 @@ class BudgetViewModel: ObservableObject {
     private let saveKey = "saved_budgets"
     private let userDefaultsManager = UserDefaultsManager()
     
+    // For reactive state updates
+    public var _stateUpdatePublisher: PassthroughSubject<UUID, Never>?
+
+    
     init() {
         loadData()
     }
@@ -63,23 +67,128 @@ class BudgetViewModel: ObservableObject {
                 return
             }
             
+            // Add expense to the budget
             budgets[index].expenses.append(expense)
+            
+            // Save data to UserDefaults
             saveData()
+            
+            // Post multiple notifications with highest priority dispatch
+            DispatchQueue.main.async {
+                // Post notification that budget data has changed
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("BudgetViewModelUpdated"),
+                    object: nil
+                )
+                
+                // Post notification that an expense was added to a specific budget
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("ExpenseAdded"),
+                    object: nil,
+                    userInfo: ["budgetId": budgetId]
+                )
+                
+                // Post general refresh notification
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("RefreshBudgetDetail"),
+                    object: nil
+                )
+                
+                // Post force refresh notification
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("ForceRefreshBudget"),
+                    object: nil,
+                    userInfo: ["budgetId": budgetId]
+                )
+            }
+            
+            // Trigger reactive state update
+            self.triggerStateUpdate(for: budgetId)
         }
     }
     
     func updateExpense(_ expense: Expense, in budgetId: UUID) {
         if let budgetIndex = budgets.firstIndex(where: { $0.id == budgetId }),
            let expenseIndex = budgets[budgetIndex].expenses.firstIndex(where: { $0.id == expense.id }) {
+            // Update expense in the budget
             budgets[budgetIndex].expenses[expenseIndex] = expense
+            
+            // Save data to UserDefaults
             saveData()
+            
+            // Post multiple notifications with highest priority dispatch
+            DispatchQueue.main.async {
+                // Post notification that budget data has changed
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("BudgetViewModelUpdated"),
+                    object: nil
+                )
+                
+                // Post notification that an expense was edited in a specific budget
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("ExpenseEdited"),
+                    object: nil,
+                    userInfo: ["budgetId": budgetId]
+                )
+                
+                // Post general refresh notification
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("RefreshBudgetDetail"),
+                    object: nil
+                )
+                
+                // Post force refresh notification
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("ForceRefreshBudget"),
+                    object: nil,
+                    userInfo: ["budgetId": budgetId]
+                )
+            }
+            
+            // Trigger reactive state update
+            self.triggerStateUpdate(for: budgetId)
         }
     }
     
     func deleteExpense(id: UUID, from budgetId: UUID) {
         if let budgetIndex = budgets.firstIndex(where: { $0.id == budgetId }) {
+            // Remove expense from the budget
             budgets[budgetIndex].expenses.removeAll(where: { $0.id == id })
+            
+            // Save data to UserDefaults
             saveData()
+            
+            // Post multiple notifications with highest priority dispatch
+            DispatchQueue.main.async {
+                // Post notification that budget data has changed
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("BudgetViewModelUpdated"),
+                    object: nil
+                )
+                
+                // Post notification that an expense was deleted from a specific budget
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("ExpenseDeleted"),
+                    object: nil,
+                    userInfo: ["budgetId": budgetId]
+                )
+                
+                // Post general refresh notification
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("RefreshBudgetDetail"),
+                    object: nil
+                )
+                
+                // Post force refresh notification
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("ForceRefreshBudget"),
+                    object: nil,
+                    userInfo: ["budgetId": budgetId]
+                )
+            }
+            
+            // Trigger reactive state update
+            self.triggerStateUpdate(for: budgetId)
         }
     }
     

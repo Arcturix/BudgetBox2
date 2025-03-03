@@ -56,7 +56,7 @@ struct HomeView: View {
                     ScrollView {
                         LazyVStack(spacing: 16) {
                             ForEach(viewModel.budgets) { budget in
-                                NavigationLink(destination: BudgetDetailView(budget: budget)) {
+                                NavigationLink(destination: BudgetDetailView(budgetId: budget.id)) {
                                     BudgetCard(budget: budget, showValues: viewModel.showValuesEnabled)
                                 }
                                 .buttonStyle(PlainButtonStyle())

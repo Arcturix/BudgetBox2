@@ -10,6 +10,7 @@
 		AA3AD1A62D733F1100556712 /* BudgetDetailComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3AD1A52D733F0500556712 /* BudgetDetailComponents.swift */; };
 		AA3AD1A82D737ADA00556712 /* SavingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3AD1A72D737AD600556712 /* SavingsView.swift */; };
 		AA3AD1AA2D738B2800556712 /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3AD1A92D738B2200556712 /* AnalysisView.swift */; };
+		AA41D11A2D74A15C00AA55DB /* ReactiveState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA41D1192D74A15800AA55DB /* ReactiveState.swift */; };
 		AA64CB882D7229BC006C4D5C /* EditBudgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA64CB872D7229B9006C4D5C /* EditBudgetView.swift */; };
 		AA7E29902D702BD200665EF3 /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA7E298F2D702BCA00665EF3 /* Currency.swift */; };
 		AAE312D42D6F7A1600ACD756 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAE312C62D6F789F00ACD756 /* Expense.swift */; };
@@ -52,6 +53,7 @@
 		AA3AD1A52D733F0500556712 /* BudgetDetailComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetDetailComponents.swift; sourceTree = "<group>"; };
 		AA3AD1A72D737AD600556712 /* SavingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavingsView.swift; sourceTree = "<group>"; };
 		AA3AD1A92D738B2200556712 /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
+		AA41D1192D74A15800AA55DB /* ReactiveState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactiveState.swift; sourceTree = "<group>"; };
 		AA64CB862D72212D006C4D5C /* Notes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notes.swift; sourceTree = "<group>"; };
 		AA64CB872D7229B9006C4D5C /* EditBudgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditBudgetView.swift; sourceTree = "<group>"; };
 		AA7E298F2D702BCA00665EF3 /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
@@ -173,6 +175,7 @@
 		AAE312C02D6F786500ACD756 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				AA41D1192D74A15800AA55DB /* ReactiveState.swift */,
 				AAE312C72D6F78B000ACD756 /* BudgetViewModel.swift */,
 			);
 			path = ViewModels;
@@ -393,6 +396,7 @@
 				AAE312D62D6F7A1E00ACD756 /* ProfileView.swift in Sources */,
 				AAE312D72D6F7A2300ACD756 /* AddExpenseView.swift in Sources */,
 				AAE312D52D6F7A1A00ACD756 /* Budget.swift in Sources */,
+				AA41D11A2D74A15C00AA55DB /* ReactiveState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

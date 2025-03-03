@@ -217,12 +217,14 @@ struct BudgetItemsList: View {
                 }
             }
             .padding(.horizontal)
+            .id(refreshID) // Force header to refresh when expenses change
 
             if isEmpty {
                 Text("No expenses yet")
                     .foregroundColor(.gray)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .center)
+                    .id("empty-\(refreshID)") // Force empty state to refresh
             } else {
                 List {
                     ForEach(expenses) { expense in
@@ -236,7 +238,9 @@ struct BudgetItemsList: View {
                         .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                onDeleteExpense(expense.id)
+                                withAnimation {
+                                    onDeleteExpense(expense.id)
+                                }
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
@@ -249,13 +253,15 @@ struct BudgetItemsList: View {
                             }
                             .tint(.blue)
                         }
+                        .id("expense-\(expense.id)-\(refreshID)") // Force each row to refresh when needed
                     }
                     .listRowSeparator(.hidden)
                 }
                 .listStyle(PlainListStyle())
                 .background(Color(hex: "383C51"))
                 .scrollContentBackground(.hidden)
-                .id(refreshID) // Use refresh ID to force view updates
+                .id("list-\(refreshID)") // Use refresh ID to force list view updates
+                .animation(.default, value: expenses.count) // Animate changes in the list count
             }
         }
     }
