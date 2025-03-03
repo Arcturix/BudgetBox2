@@ -47,20 +47,42 @@ struct ExpenseRow: View {
                                 .font(.caption)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color(hex: budgetColorHex).opacity(0.2))
-                                .foregroundColor(Color(hex: budgetColorHex))
+                                .background(Color.blue.opacity(0.2))
+                                .foregroundColor(.blue)
                                 .cornerRadius(4)
                         }
                     }
                     
-                    // Category and date
-                    HStack {
-                        Text(expense.category.rawValue)
-                            .font(.caption)
-                            .foregroundColor(.gray)
+                    // Category
+                    Text(expense.category.rawValue)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+                // Amount and date column
+                VStack(alignment: .trailing, spacing: 4) {
+                    // Amount
+                    if showValues {
+                        Text("-\(expense.amount.formatted(.currency(code: expense.currency.rawValue)))")
+                            .foregroundColor(Color(hex: budgetColorHex))
+                            .font(.headline)
                         
-                        Spacer()
-                        
+                        // Show conversion if currencies differ
+                        if expense.currency != budgetCurrency {
+                            Text("(\(expense.convertedAmount(to: budgetCurrency).formatted(.currency(code: budgetCurrency.rawValue))))")
+                                .foregroundColor(.orange)
+                                .font(.caption)
+                        }
+                    } else {
+                        Text("-****")
+                            .foregroundColor(Color(hex: budgetColorHex))
+                            .font(.headline)
+                    }
+                    
+                    // Date and notification row
+                    HStack(spacing: 4) {
                         Text(expense.date.formatted(date: .abbreviated, time: .omitted))
                             .font(.caption)
                             .foregroundColor(.gray)
@@ -71,29 +93,6 @@ struct ExpenseRow: View {
                                 .foregroundColor(.yellow)
                                 .font(.caption)
                         }
-                    }
-                }
-                
-                Spacer()
-                
-                // Amount
-                VStack(alignment: .trailing) {
-                    if showValues {
-                        Text("-\(expense.amount.formatted(.currency(code: expense.currency.rawValue)))")
-                            .foregroundColor(Color(hex: budgetColorHex))
-                            .font(.headline)
-                        
-                        // Show conversion if currencies differ
-                        if expense.currency != budgetCurrency {
-                            let convertedAmount = expense.convertedAmount(to: budgetCurrency)
-                            Text("(\(convertedAmount.formatted(.currency(code: budgetCurrency.rawValue))))")
-                                .foregroundColor(.orange)
-                                .font(.caption)
-                        }
-                    } else {
-                        Text("-****")
-                            .foregroundColor(Color(hex: budgetColorHex))
-                            .font(.headline)
                     }
                 }
             }
@@ -135,6 +134,28 @@ struct ExpenseRow: View {
         .background(showNotes ? Color.gray.opacity(0.15) : Color.clear)
         .cornerRadius(10)
     }
+}
+
+#Preview {
+    let expense = Expense(
+        name: "Groceries",
+        amount: 75.5,
+        currency: .usd,
+        category: .food,
+        date: Date(),
+        isEssential: true,
+        notes: "Weekly shopping at Trader Joe's"
+    )
+    
+    return ExpenseRow(
+        expense: expense,
+        showValues: true,
+        budgetCurrency: .usd,
+        budgetColorHex: "A169F7"
+    )
+    .padding()
+    .background(Color(hex: "383C51"))
+    .preferredColorScheme(.dark)
 }
 
 #Preview {

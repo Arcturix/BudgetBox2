@@ -27,6 +27,7 @@ struct BudgetDetailHeader: View {
 
                 Spacer()
 
+                // Move the circle inside the HStack's bounds
                 Circle()
                     .fill(Color(hex: budget.colorHex))
                     .frame(width: 50, height: 50)
@@ -35,8 +36,9 @@ struct BudgetDetailHeader: View {
                             .font(.title2)
                             .foregroundColor(.white)
                     )
-                    .padding(.horizontal)
+                    .padding(.trailing) // Add trailing padding to keep it from the edge
             }
+            .padding(.bottom, 8) // Add bottom padding to create space between header and cards
         }
     }
 }
@@ -64,6 +66,20 @@ struct BudgetSummaryCards: View {
     let showValuesEnabled: Bool
     let showTotalExpense: Bool
     let onToggleShowTotalExpense: () -> Void
+    
+    // Function to get the appropriate currency icon name
+    private func currencyIconName(for currency: Currency) -> String {
+        switch currency {
+        case .usd:
+            return "dollarsign"
+        case .eur:
+            return "eurosign"
+        case .gbp:
+            return "sterlingsign"
+        case .jpy:
+            return "yensign"
+        }
+    }
     
     var body: some View {
         HStack(spacing: 20) {
@@ -106,7 +122,8 @@ struct BudgetSummaryCards: View {
                         endPoint: .bottomTrailing
                     )
 
-                    Image(systemName: "eurosign")
+                    // Use the appropriate currency icon based on budget currency
+                    Image(systemName: currencyIconName(for: budget.currency))
                         .resizable()
                         .scaledToFit()
                         .foregroundColor(.white.opacity(0.1))
