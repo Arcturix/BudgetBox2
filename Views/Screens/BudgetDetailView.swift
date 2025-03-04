@@ -231,7 +231,7 @@ struct BudgetDetailView: View {
         }
         .sheet(isPresented: $isShowingAddExpenseSheet) {
             if let budget = budget {
-                AddExpenseView(budgetId: budget.id, startYear: budget.startYear)
+                AddExpenseView(budgetId: budget.id, startYear: budget.startYear, budgetCurrency: budget.currency)
                     .environmentObject(viewModel)
             }
         }
@@ -411,92 +411,92 @@ struct BudgetDetailView: View {
             // Budget Tab
             tabButton(title: "Budget", icon: "list.bullet", isSelected: selectedTab == 0, colorHex: budget.colorHex) {
                 selectedTab = 0
-            }
-            
-            Spacer()
-            
-            // Analysis Tab
-            tabButton(title: "Analysis", icon: "chart.pie.fill", isSelected: selectedTab == 1, colorHex: budget.colorHex) {
-                selectedTab = 1
-            }
-            
-            Spacer()
-            
-            // Savings Tab
-            tabButton(title: "Savings", icon: "chart.line.uptrend.xyaxis", isSelected: selectedTab == 2, colorHex: budget.colorHex) {
-                selectedTab = 2
-            }
-            
-            Spacer()
-        }
-        .padding(.vertical, 8)
-        .background(ThemeManager.Colors.secondary)
-    }
-    
-    private func tabButton(title: String, icon: String, isSelected: Bool, colorHex: String, action: @escaping () -> Void) -> some View {
-        Button(action: {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                action()
-            }
-        }) {
-            VStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.system(size: 20))
-                Text(title)
-                    .font(.caption)
-            }
-            .foregroundColor(isSelected ? Color(hex: colorHex) : ThemeManager.Colors.secondaryText)
-            .padding(.vertical, 8)
-            .padding(.horizontal, 16)
-            .background(
-                isSelected ?
-                    Color(hex: colorHex).opacity(0.2) :
-                    Color.clear
-            )
-            .cornerRadius(8)
-        }
-    }
-}
+                            }
+                            
+                            Spacer()
+                            
+                            // Analysis Tab
+                            tabButton(title: "Analysis", icon: "chart.pie.fill", isSelected: selectedTab == 1, colorHex: budget.colorHex) {
+                                selectedTab = 1
+                            }
+                            
+                            Spacer()
+                            
+                            // Savings Tab
+                            tabButton(title: "Savings", icon: "chart.line.uptrend.xyaxis", isSelected: selectedTab == 2, colorHex: budget.colorHex) {
+                                selectedTab = 2
+                            }
+                            
+                            Spacer()
+                        }
+                        .padding(.vertical, 8)
+                        .background(ThemeManager.Colors.secondary)
+                    }
+                    
+                    private func tabButton(title: String, icon: String, isSelected: Bool, colorHex: String, action: @escaping () -> Void) -> some View {
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                action()
+                            }
+                        }) {
+                            VStack(spacing: 4) {
+                                Image(systemName: icon)
+                                    .font(.system(size: 20))
+                                Text(title)
+                                    .font(.caption)
+                            }
+                            .foregroundColor(isSelected ? Color(hex: colorHex) : ThemeManager.Colors.secondaryText)
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 16)
+                            .background(
+                                isSelected ?
+                                    Color(hex: colorHex).opacity(0.2) :
+                                    Color.clear
+                            )
+                            .cornerRadius(8)
+                        }
+                    }
+                }
 
-#Preview {
-    let sampleExpenses = [
-        Expense(
-            name: "Groceries",
-            amount: 100.0,
-            currency: .usd,
-            category: .food,
-            date: Date(),
-            isEssential: true,
-            notes: "Weekly grocery shopping"
-        ),
-        Expense(
-            name: "Netflix",
-            amount: 15.99,
-            currency: .usd,
-            category: .entertainment,
-            date: Date().addingTimeInterval(-86400),
-            isEssential: false,
-            notes: "Monthly subscription"
-        )
-    ]
-    
-    let sampleBudget = Budget(
-        name: "Monthly Budget",
-        amount: 1000.0,
-        currency: .usd,
-        iconName: "dollarsign.circle",
-        colorHex: "A169F7",
-        isMonthly: true,
-        expenses: sampleExpenses,
-        startMonth: 1,
-        startYear: 2023
-    )
-    
-    let viewModel = BudgetViewModel()
-    viewModel.addBudget(sampleBudget)
-    
-    return NavigationView {
-        BudgetDetailView(budgetId: sampleBudget.id)
-            .environmentObject(viewModel)
-    }
-}
+                #Preview {
+                    let sampleExpenses = [
+                        Expense(
+                            name: "Groceries",
+                            amount: 100.0,
+                            currency: .usd,
+                            category: .food,
+                            date: Date(),
+                            isEssential: true,
+                            notes: "Weekly grocery shopping"
+                        ),
+                        Expense(
+                            name: "Netflix",
+                            amount: 15.99,
+                            currency: .usd,
+                            category: .entertainment,
+                            date: Date().addingTimeInterval(-86400),
+                            isEssential: false,
+                            notes: "Monthly subscription"
+                        )
+                    ]
+                    
+                    let sampleBudget = Budget(
+                        name: "Monthly Budget",
+                        amount: 1000.0,
+                        currency: .usd,
+                        iconName: "dollarsign.circle",
+                        colorHex: "A169F7",
+                        isMonthly: true,
+                        expenses: sampleExpenses,
+                        startMonth: 1,
+                        startYear: 2023
+                    )
+                    
+                    let viewModel = BudgetViewModel()
+                    viewModel.addBudget(sampleBudget)
+                    
+                    return NavigationView {
+                        BudgetDetailView(budgetId: sampleBudget.id)
+                            .environmentObject(viewModel)
+                    }
+                }

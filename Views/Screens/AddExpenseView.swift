@@ -8,11 +8,26 @@ struct AddExpenseView: View {
     // MARK: - Data Properties
     let budgetId: UUID
     let startYear: Int
+    let budgetCurrency: Currency
+    
+    init(budgetId: UUID, startYear: Int) {
+        self.budgetId = budgetId
+        self.startYear = startYear
+        self.budgetCurrency = Currency.usd
+        self._selectedCurrency = State(initialValue: Currency.usd)
+    }
+    
+    init(budgetId: UUID, startYear: Int, budgetCurrency: Currency) {
+        self.budgetId = budgetId
+        self.startYear = startYear
+        self.budgetCurrency = budgetCurrency
+        self._selectedCurrency = State(initialValue: budgetCurrency)
+    }
     
     // MARK: - State Properties
     @State private var name = ""
     @State private var amount = ""
-    @State private var selectedCurrency = Currency.usd
+    @State private var selectedCurrency: Currency
     @State private var selectedCategory = ExpenseCategory.other
     @State private var isEssential = false
     @State private var notes = ""
@@ -400,7 +415,7 @@ struct AddExpenseView: View {
 }
 
 #Preview {
-    AddExpenseView(budgetId: UUID(), startYear: 2023)
+    AddExpenseView(budgetId: UUID(), startYear: 2023, budgetCurrency: .eur)
         .environmentObject(BudgetViewModel())
         .preferredColorScheme(.dark)
 }
