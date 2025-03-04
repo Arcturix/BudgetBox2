@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var viewModel: BudgetViewModel
     @State private var showingAddBudget = false
+    @State private var showingEditInsights = false
     
     // MARK: - Layout Constants (Adjust these to fine-tune the layout)
     private let horizontalMargin: CGFloat = 44 // Increase this for more margin from edges
@@ -74,114 +75,133 @@ struct HomeView: View {
                     // Add significant space between title and first card
                     .padding(.bottom, titleBottomSpacing)
                     
-                    // Budget List
                     ScrollView {
-                        LazyVStack(spacing: cardSpacing) {
-                            ForEach(viewModel.budgets) { budget in
-                                NavigationLink(destination: BudgetDetailView(budgetId: budget.id)) {
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        // Header row with icon, name, and amount
-                                        HStack {
-                                            // Icon with color
-                                            Image(systemName: budget.iconName)
-                                                // Use the budget's actual color
-                                                .foregroundColor(Color(hex: budget.colorHex))
-                                                .font(.title)
-                                                .frame(width: 40, height: 40)
-                                                .padding(.trailing, 5)
-                                            
-                                            // Budget name and type
-                                            VStack(alignment: .leading) {
-                                                Text(budget.name)
-                                                    .font(.headline)
-                                                    .foregroundColor(.white)
-                                                
-                                                Text(budget.isMonthly ? "Monthly Budget" : "One-time Budget")
-                                                    .font(.subheadline)
-                                                    .foregroundColor(.gray)
-                                            }
-                                            
-                                            Spacer()
-                                            
-                                            // Amount
-                                            if viewModel.showValuesEnabled {
-                                                Text("\(budget.amount.formatted(.currency(code: budget.currency.rawValue)))")
-                                                    .font(.title3)
-                                                    .bold()
-                                                    .foregroundColor(.white)
-                                            } else {
-                                                Text("****")
-                                                    .font(.title3)
-                                                    .bold()
-                                                    .foregroundColor(.white)
-                                            }
-                                        }
-                                        
-                                        // Progress indicator
-                                        GeometryReader { geometry in
-                                            ZStack(alignment: .leading) {
-                                                // Background
-                                                RoundedRectangle(cornerRadius: 3)
-                                                    .foregroundColor(.gray.opacity(0.3))
-                                                    .frame(height: 6)
-                                                
-                                                // Progress - using the budget's color
-                                                RoundedRectangle(cornerRadius: 3)
+                        VStack(spacing: 24) {
+                            // Budget List
+                            LazyVStack(spacing: cardSpacing) {
+                                ForEach(viewModel.budgets) { budget in
+                                    NavigationLink(destination: BudgetDetailView(budgetId: budget.id)) {
+                                        VStack(alignment: .leading, spacing: 5) {
+                                            // Header row with icon, name, and amount
+                                            HStack {
+                                                // Icon with color
+                                                Image(systemName: budget.iconName)
+                                                    // Use the budget's actual color
                                                     .foregroundColor(Color(hex: budget.colorHex))
-                                                    .frame(width: max(0, CGFloat(budget.percentRemaining) / 100.0 * geometry.size.width), height: 6)
+                                                    .font(.title)
+                                                    .frame(width: 40, height: 40)
+                                                    .padding(.trailing, 5)
+                                                
+                                                // Budget name and type
+                                                VStack(alignment: .leading) {
+                                                    Text(budget.name)
+                                                        .font(.headline)
+                                                        .foregroundColor(.white)
+                                                    
+                                                    Text(budget.isMonthly ? "Monthly Budget" : "One-time Budget")
+                                                        .font(.subheadline)
+                                                        .foregroundColor(.gray)
+                                                }
+                                                
+                                                Spacer()
+                                                
+                                                // Amount
+                                                if viewModel.showValuesEnabled {
+                                                    Text("\(budget.amount.formatted(.currency(code: budget.currency.rawValue)))")
+                                                        .font(.title3)
+                                                        .bold()
+                                                        .foregroundColor(.white)
+                                                } else {
+                                                    Text("****")
+                                                        .font(.title3)
+                                                        .bold()
+                                                        .foregroundColor(.white)
+                                                }
+                                            }
+                                            
+                                            // Progress indicator
+                                            GeometryReader { geometry in
+                                                ZStack(alignment: .leading) {
+                                                    // Background
+                                                    RoundedRectangle(cornerRadius: 3)
+                                                        .foregroundColor(.gray.opacity(0.3))
+                                                        .frame(height: 6)
+                                                    
+                                                    // Progress - using the budget's color
+                                                    RoundedRectangle(cornerRadius: 3)
+                                                        .foregroundColor(Color(hex: budget.colorHex))
+                                                        .frame(width: max(0, CGFloat(budget.percentRemaining) / 100.0 * geometry.size.width), height: 6)
+                                                }
+                                            }
+                                            .frame(height: 6)
+                                            .padding(.vertical, 10)
+                                            
+                                            // Remaining amount and percentage
+                                            HStack {
+                                                Text("Remaining")
+                                                    .font(.caption)
+                                                    .foregroundColor(.gray)
+                                                
+                                                Spacer()
+                                                
+                                                if viewModel.showValuesEnabled {
+                                                    // Use green text for positive remaining amounts
+                                                    Text("\(budget.remainingAmount.formatted(.currency(code: budget.currency.rawValue)))")
+                                                        .foregroundColor(.green)
+                                                        .font(.subheadline)
+                                                } else {
+                                                    Text("****")
+                                                        .foregroundColor(.green)
+                                                        .font(.subheadline)
+                                                }
+                                                
+                                                Text("\(budget.percentRemaining)%")
+                                                    .font(.caption)
+                                                    .foregroundColor(.gray)
+                                                    .frame(width: 50, alignment: .trailing)
                                             }
                                         }
-                                        .frame(height: 6)
-                                        .padding(.vertical, 10)
+                                        .padding(.horizontal, cardHorizontalPadding)
+                                        .padding(.vertical, cardVerticalPadding)
+                                        .background(Color.black.opacity(0.6))
+                                        .cornerRadius(20)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                    .contextMenu {
+                                        NavigationLink(destination: EditBudgetView(budget: budget)) {
+                                            Label("Edit", systemImage: "pencil")
+                                        }
                                         
-                                        // Remaining amount and percentage
-                                        HStack {
-                                            Text("Remaining")
-                                                .font(.caption)
-                                                .foregroundColor(.gray)
-                                            
-                                            Spacer()
-                                            
-                                            if viewModel.showValuesEnabled {
-                                                // Use green text for positive remaining amounts
-                                                Text("\(budget.remainingAmount.formatted(.currency(code: budget.currency.rawValue)))")
-                                                    .foregroundColor(.green)
-                                                    .font(.subheadline)
-                                            } else {
-                                                Text("****")
-                                                    .foregroundColor(.green)
-                                                    .font(.subheadline)
-                                            }
-                                            
-                                            Text("\(budget.percentRemaining)%")
-                                                .font(.caption)
-                                                .foregroundColor(.gray)
-                                                .frame(width: 50, alignment: .trailing)
+                                        Button(role: .destructive, action: {
+                                            viewModel.deleteBudget(id: budget.id)
+                                        }) {
+                                            Label("Delete", systemImage: "trash")
                                         }
                                     }
-                                    .padding(.horizontal, cardHorizontalPadding)
-                                    .padding(.vertical, cardVerticalPadding)
-                                    .background(Color.black.opacity(0.6))
-                                    .cornerRadius(20)
                                 }
-                                .buttonStyle(PlainButtonStyle())
-                                .contextMenu {
-                                    NavigationLink(destination: EditBudgetView(budget: budget)) {
-                                        Label("Edit", systemImage: "pencil")
-                                    }
-                                    
-                                    Button(role: .destructive, action: {
-                                        viewModel.deleteBudget(id: budget.id)
-                                    }) {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                }
+                                .padding(.horizontal, horizontalMargin)
                             }
-                            .padding(.horizontal, horizontalMargin)
+                            
+                            // Only show insights if there are budgets
+                            if !viewModel.budgets.isEmpty {
+                                // NEW: Budget Insights with Edit capability
+                                BudgetInsights(
+                                    budgets: viewModel.budgets,
+                                    showValues: viewModel.showValuesEnabled,
+                                    selectedInsights: viewModel.selectedInsights,
+                                    onEditTapped: {
+                                        showingEditInsights = true
+                                    }
+                                )
+                                .padding(.top, 24) // Add extra space between budget cards and insights
+                                .background(Color.black.opacity(0.3)) // Semi-transparent background
+                                .cornerRadius(20) // Rounded corners to match budget cards
+                                .padding(.horizontal, horizontalMargin) // Match the budget cards' horizontal margins
+                            }
+                            
+                            // Add spacing at the bottom for proper scrolling
+                            Spacer(minLength: 100)
                         }
-                        
-                        // Add spacing at the bottom for proper scrolling
-                        Spacer(minLength: 100)
                     }
                     
                     Spacer() // Push content up, add budget button down
@@ -209,6 +229,10 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showingAddBudget) {
                 AddBudgetView()
+            }
+            .sheet(isPresented: $showingEditInsights) {
+                EditInsightsView()
+                    .environmentObject(viewModel)
             }
             .navigationBarHidden(true)
         }

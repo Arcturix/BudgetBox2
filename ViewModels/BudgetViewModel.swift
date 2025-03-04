@@ -8,10 +8,14 @@ class BudgetViewModel: ObservableObject {
     @Published var showValuesEnabled: Bool = true
     @Published var userAvatar: Data?
     @Published var budgetItemLimitEnabled: Bool = true
+    @Published var selectedInsights: [InsightType] = [.savingsRate, .essentialExpenses]
     
     // MARK: - Private Properties
     private let saveKey = "saved_budgets"
     private let userDefaultsManager = UserDefaultsManager()
+    
+    // Maximum number of insights that can be selected
+    let maxInsights: Int = 6
     
     // For reactive state updates
     public var _stateUpdatePublisher: PassthroughSubject<UUID, Never>?
@@ -19,6 +23,7 @@ class BudgetViewModel: ObservableObject {
     // MARK: - Initialization
     init() {
         loadData()
+        loadSelectedInsights()
     }
     
     // MARK: - Data Management
@@ -36,6 +41,41 @@ class BudgetViewModel: ObservableObject {
         if let avatar = userAvatar {
             userDefaultsManager.save(avatar, key: "user_avatar")
         }
+        saveSelectedInsights()
+    }
+    
+    // MARK: - Insights Management
+    
+    // Load selected insights from UserDefaults
+    func loadSelectedInsights() {
+        if let savedInsights: [InsightType] = userDefaultsManager.load(key: "selected_insights") {
+            selectedInsights = savedInsights
+        } else {
+            // Default insights if none are saved
+            selectedInsights = [.savingsRate, .essentialExpenses]
+        }
+    }
+    
+    // Save selected insights to UserDefaults
+    func saveSelectedInsights() {
+        userDefaultsManager.save(selectedInsights, key: "selected_insights")
+    }
+    
+    // Toggle an insight selection
+    func toggleInsight(_ insight: InsightType) {
+        if selectedInsights.contains(insight) {
+            // Remove insight if already selected
+            selectedInsights.removeAll(where: { $0 == insight })
+        } else if selectedInsights.count < maxInsights {
+            // Add insight if under max limit
+            selectedInsights.append(insight)
+        }
+        saveSelectedInsights()
+    }
+    
+    // Check if an insight is selected
+    func isInsightSelected(_ insight: InsightType) -> Bool {
+        return selectedInsights.contains(insight)
     }
     
     // MARK: - Budget Operations
@@ -139,3 +179,6 @@ class BudgetViewModel: ObservableObject {
         saveData()
     }
 }
+
+// Note: The ReactiveStateUpdate extension is removed since it's already defined
+// in your ReactiveState.swift file. No need to include it here.
