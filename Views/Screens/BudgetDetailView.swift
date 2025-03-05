@@ -479,6 +479,7 @@ struct ExpenseRowWithSwipe: View {
     @State private var isSwiping = false
     @State private var showDeleteButton = false
     @State private var showEditButton = false
+    @State private var showDeleteConfirmation = false
     
     var body: some View {
         ZStack {
@@ -510,7 +511,7 @@ struct ExpenseRowWithSwipe: View {
                     withAnimation {
                         offset = 0
                         showDeleteButton = false
-                        onDelete()
+                        showDeleteConfirmation = true
                     }
                 } label: {
                     HStack {
@@ -570,11 +571,11 @@ struct ExpenseRowWithSwipe: View {
                                 onEdit()
                             }
                         } else if dragDistance < -100 {
-                            // Complete delete action
+                            // Show delete confirmation instead of immediately deleting
                             withAnimation {
                                 offset = 0
                                 showDeleteButton = false
-                                onDelete()
+                                showDeleteConfirmation = true
                             }
                         } else {
                             // Snap back to original position
@@ -594,6 +595,16 @@ struct ExpenseRowWithSwipe: View {
                         showDeleteButton = false
                     }
                 }
+            }
+            .alert(isPresented: $showDeleteConfirmation) {
+                Alert(
+                    title: Text("Delete \(expense.name)?"),
+                    message: Text("Are you sure you want to delete this expense? This action cannot be undone."),
+                    primaryButton: .destructive(Text("Delete")) {
+                        onDelete()
+                    },
+                    secondaryButton: .cancel()
+                )
             }
         }
     }
