@@ -8,7 +8,7 @@ class BudgetViewModel: ObservableObject {
     @Published var showValuesEnabled: Bool = true
     @Published var userAvatar: Data?
     @Published var budgetItemLimitEnabled: Bool = true
-    @Published var selectedInsights: [InsightType] = [.savingsRate, .essentialExpenses]
+    @Published var selectedInsights: [InsightType] = [.netWorth, .savingsRate, .essentialExpenses]
     
     // MARK: - Private Properties
     private let saveKey = "saved_budgets"
@@ -52,7 +52,7 @@ class BudgetViewModel: ObservableObject {
             selectedInsights = savedInsights
         } else {
             // Default insights if none are saved
-            selectedInsights = [.savingsRate, .essentialExpenses]
+            selectedInsights = [.netWorth, .savingsRate, .essentialExpenses]
         }
     }
     
@@ -179,6 +179,3 @@ class BudgetViewModel: ObservableObject {
         saveData()
     }
 }
-
-// Note: The ReactiveStateUpdate extension is removed since it's already defined
-// in your ReactiveState.swift file. No need to include it here.

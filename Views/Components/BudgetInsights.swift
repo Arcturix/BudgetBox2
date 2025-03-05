@@ -14,6 +14,33 @@ struct BudgetInsights: View {
         budgets.flatMap { $0.expenses }
     }
     
+    // Calculate total net worth (savings expenses + their starting balances)
+    private var netWorth: Double {
+        let savingsExpenses = allExpenses.filter { $0.category == .savings }
+        
+        let savingsContributions = savingsExpenses.reduce(0.0) { result, expense in
+            // Convert to primary currency if needed
+            let amount = expense.currency == primaryCurrency ?
+                expense.amount :
+                expense.convertedAmount(to: primaryCurrency)
+                
+            return result + amount
+        }
+        
+        let startingBalances = savingsExpenses.reduce(0.0) { result, expense in
+            guard let balance = expense.startingBalance else { return result }
+            
+            // Convert to primary currency if needed
+            let convertedBalance = expense.currency == primaryCurrency ?
+                balance :
+                expense.convertedStartingBalance(to: primaryCurrency) ?? 0.0
+                
+            return result + convertedBalance
+        }
+        
+        return savingsContributions + startingBalances
+    }
+    
     // Calculate savings rate (savings / total expenses)
     private var savingsRate: Double {
         guard !allExpenses.isEmpty else { return 0 }
@@ -143,15 +170,15 @@ struct BudgetInsights: View {
             .padding(.horizontal)
             .padding(.bottom, titleBottomSpacing)
             
-            // Insights Grid
-            let columns = Array(repeating: GridItem(.flexible()), count: min(2, max(1, selectedInsights.count)))
-            
-            LazyVGrid(columns: columns, spacing: gridItemSpacing) {
-                ForEach(selectedInsights) { insight in
-                    insightCardFor(insight: insight)
+            // Linear Insights Layout
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: gridItemSpacing) {
+                    ForEach(selectedInsights) { insight in
+                        insightCardFor(insight: insight)
+                    }
                 }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
         }
         // Apply padding to the entire component
         .padding(.horizontal, componentHorizontalPadding)
@@ -163,6 +190,14 @@ struct BudgetInsights: View {
     @ViewBuilder
     private func insightCardFor(insight: InsightType) -> some View {
         switch insight {
+        case .netWorth:
+            insightCard(
+                icon: insight.icon,
+                title: insight.rawValue,
+                value: showValues ? netWorth.formatted(.currency(code: primaryCurrency.rawValue)) : "****",
+                color: Color(hex: insight.defaultColor)
+            )
+            
         case .savingsRate:
             insightCard(
                 icon: insight.icon,
@@ -241,27 +276,39 @@ struct BudgetInsights: View {
     // MARK: - Helper Views
     
     private func insightCard(icon: String, title: String, value: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.body)
-                    .foregroundColor(.white) // Changed to white for all icons
+        HStack {
+            // Icon with color background
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.2))
+                    .frame(width: 40, height: 40)
                 
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                    .foregroundColor(color)
+            }
+            
+            // Content
+            VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.subheadline)
                     .foregroundColor(.gray)
+                
+                Text(value)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .lineLimit(1)
             }
+            .padding(.leading, 8)
             
-            Text(value)
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .lineLimit(1)
+            Spacer()
         }
-        .padding()
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
         .background(Color.black.opacity(0.4))
         .cornerRadius(16)
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -314,8 +361,8 @@ struct BudgetInsights: View {
                     startYear: 2023
                 )
             ],
-            showValues: true,  // This parameter was missing
-            selectedInsights: [.savingsRate, .essentialExpenses],
+            showValues: true,
+            selectedInsights: [.netWorth, .savingsRate, .essentialExpenses],
             onEditTapped: {}
         )
         .padding()

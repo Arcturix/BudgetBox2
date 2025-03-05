@@ -2,6 +2,7 @@ import SwiftUI
 
 // Represents all available insight types that can be displayed
 enum InsightType: String, CaseIterable, Identifiable, Codable {
+    case netWorth = "Net Worth"
     case savingsRate = "Savings Rate"
     case essentialExpenses = "Essential Expenses"
     case topCategory = "Top Category"
@@ -20,6 +21,8 @@ enum InsightType: String, CaseIterable, Identifiable, Codable {
     // Icons for each insight type
     var icon: String {
         switch self {
+        case .netWorth:
+            return "dollarsign.circle.fill"
         case .savingsRate:
             return "chart.line.uptrend.xyaxis"
         case .essentialExpenses:
@@ -50,6 +53,8 @@ enum InsightType: String, CaseIterable, Identifiable, Codable {
     // Default color for each insight type
     var defaultColor: String {
         switch self {
+        case .netWorth:
+            return "42A5F5" // Light Blue
         case .savingsRate:
             return "4CAF50" // Green
         case .essentialExpenses:
