@@ -156,9 +156,11 @@ struct BudgetInsights: View {
                     HStack(spacing: 4) {
                         Image(systemName: "pencil")
                             .font(.caption)
+                            .foregroundColor(.white)
                         
                         Text("Edit")
                             .font(.subheadline)
+                            .foregroundColor(.white)
                     }
                     .foregroundColor(Color(hex: "A169F7"))
                     .padding(.vertical, 4)

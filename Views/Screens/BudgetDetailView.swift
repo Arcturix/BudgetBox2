@@ -37,7 +37,7 @@ struct BudgetDetailView: View {
     var body: some View {
         ZStack {
             // Background
-            Color(hex: "383C51")
+            Color(hex: "020514")
                 .ignoresSafeArea()
             
             if let budget = budget {

@@ -92,7 +92,7 @@ struct AnalysisView: View {
                 }
             }
         }
-        .background(Color(hex: "383C51"))
+        .background(Color(hex: "020514"))
     }
     
     // MARK: - UI Components

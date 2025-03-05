@@ -101,7 +101,7 @@ struct SavingsView: View {
             }
             .padding(.bottom, 24)
         }
-        .background(Color(hex: "383C51"))
+        .background(Color(hex: "020514"))
         .onChange(of: savingsItems) { oldValue, newValue in
             // If the selected item is no longer in the list, deselect it
             if let selected = selectedSavingsItem, !newValue.contains(where: { $0.id == selected.id }) {
