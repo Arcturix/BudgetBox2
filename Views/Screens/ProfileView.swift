@@ -5,6 +5,7 @@ struct ProfileView: View {
     @EnvironmentObject var viewModel: BudgetViewModel
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImageData: Data?
+    @State private var selectedLoanCurrency: Currency = .usd
     
     var body: some View {
         ZStack {
@@ -57,6 +58,89 @@ struct ProfileView: View {
                     .background(Color.gray.opacity(0.2))
                     .cornerRadius(10)
                     .onChange(of: viewModel.showValuesEnabled) { viewModel.saveData() }
+                    
+                    // Student Loan Section
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("Student Loan")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            // Tooltip Button
+                            Button(action: {
+                                // Show tooltip info (can be expanded later)
+                            }) {
+                                Image(systemName: "info.circle")
+                                    .foregroundColor(.gray)
+                            }
+                            .help("Enter your student loan details to track them in your budgeting. This information will be used for financial planning and is stored locally on your device only. You can update this information anytime as your loan balance changes.")
+                        }
+                        
+                        // Outstanding Balance Field with Currency Selector
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Outstanding Balance")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            
+                            HStack {
+                                TextField("0.00", value: $viewModel.studentLoanBalance, format: .number)
+                                    .keyboardType(.decimalPad)
+                                    .padding(10)
+                                    .background(Color.black.opacity(0.2))
+                                    .cornerRadius(8)
+                                    .foregroundColor(.white)
+                                    .onChange(of: viewModel.studentLoanBalance) { viewModel.saveData() }
+                                
+                                // Currency Picker
+                                Menu {
+                                    ForEach(Currency.allCases, id: \.self) { currency in
+                                        Button(action: {
+                                            viewModel.studentLoanCurrency = currency
+                                            viewModel.saveData()
+                                        }) {
+                                            HStack {
+                                                Text("\(currency.symbol) \(currency.rawValue)")
+                                                if viewModel.studentLoanCurrency == currency {
+                                                    Image(systemName: "checkmark")
+                                                }
+                                            }
+                                        }
+                                    }
+                                } label: {
+                                    Text(viewModel.studentLoanCurrency.symbol)
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 8)
+                                        .background(Color.gray.opacity(0.3))
+                                        .cornerRadius(8)
+                                }
+                            }
+                        }
+                        
+                        // Interest Rate Field
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Interest Rate (%)")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            
+                            TextField("0.00", value: $viewModel.studentLoanInterestRate, format: .number.precision(.fractionLength(2)))
+                                .keyboardType(.decimalPad)
+                                .padding(10)
+                                .background(Color.black.opacity(0.2))
+                                .cornerRadius(8)
+                                .foregroundColor(.white)
+                                .onChange(of: viewModel.studentLoanInterestRate) { viewModel.saveData() }
+                                .overlay(
+                                    Text("%")
+                                        .foregroundColor(.gray)
+                                        .padding(.trailing, 12),
+                                    alignment: .trailing
+                                )
+                        }
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(10)
                     
                     // Budget Item Limit Toggle
                     VStack(alignment: .leading, spacing: 5) {

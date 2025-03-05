@@ -76,7 +76,8 @@ enum ExpenseCategory: String, Codable, CaseIterable, Hashable {
     case entertainment = "Entertainment"
     case healthcare = "Healthcare"
     case shopping = "Shopping"
-    case subscriptions = "Subscriptions" // Changed from personal
+    case subscriptions = "Subscriptions"
+    case debt = "Debt" // New Debt category
     case other = "Other"
     
     var iconName: String {
@@ -89,7 +90,8 @@ enum ExpenseCategory: String, Codable, CaseIterable, Hashable {
         case .entertainment: return "gamecontroller.fill"
         case .healthcare: return "heart.fill"
         case .shopping: return "bag.fill"
-        case .subscriptions: return "tv.fill" // Changed from personal
+        case .subscriptions: return "tv.fill"
+        case .debt: return "creditcard.and.arrow.down" // Icon for debt
         case .other: return "ellipsis.circle.fill"
         }
     }
@@ -104,7 +106,8 @@ enum ExpenseCategory: String, Codable, CaseIterable, Hashable {
         case .entertainment: return "9C27B0" // Purple
         case .healthcare: return "E91E63" // Pink
         case .shopping: return "FF9800" // Orange
-        case .subscriptions: return "607D8B" // Blue Grey // Changed from personal
+        case .subscriptions: return "607D8B" // Blue Grey
+        case .debt: return "F44336" // Red for debt
         case .other: return "795548"    // Brown
         }
     }

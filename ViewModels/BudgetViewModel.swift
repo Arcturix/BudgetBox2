@@ -9,6 +9,9 @@ class BudgetViewModel: ObservableObject {
     @Published var userAvatar: Data?
     @Published var budgetItemLimitEnabled: Bool = true
     @Published var selectedInsights: [InsightType] = [.netWorth, .savingsRate, .essentialExpenses]
+    @Published var studentLoanBalance: Double = 0.0
+    @Published var studentLoanInterestRate: Double = 0.0
+    @Published var studentLoanCurrency: Currency = .usd
     
     // MARK: - Private Properties
     private let saveKey = "saved_budgets"
@@ -32,12 +35,25 @@ class BudgetViewModel: ObservableObject {
         showValuesEnabled = userDefaultsManager.load(key: "show_values") ?? true
         userAvatar = userDefaultsManager.load(key: "user_avatar")
         budgetItemLimitEnabled = userDefaultsManager.load(key: "budget_item_limit_enabled") ?? true
+        studentLoanBalance = userDefaultsManager.load(key: "student_loan_balance") ?? 0.0
+        studentLoanInterestRate = userDefaultsManager.load(key: "student_loan_interest_rate") ?? 0.0
+        
+        // Load student loan currency with fallback to USD
+        if let currencyString: String = userDefaultsManager.load(key: "student_loan_currency") {
+            if let currency = Currency(rawValue: currencyString) {
+                studentLoanCurrency = currency
+            }
+        }
     }
     
     func saveData() {
         userDefaultsManager.save(budgets, key: saveKey)
         userDefaultsManager.save(showValuesEnabled, key: "show_values")
         userDefaultsManager.save(budgetItemLimitEnabled, key: "budget_item_limit_enabled")
+        userDefaultsManager.save(studentLoanBalance, key: "student_loan_balance")
+        userDefaultsManager.save(studentLoanInterestRate, key: "student_loan_interest_rate")
+        userDefaultsManager.save(studentLoanCurrency.rawValue, key: "student_loan_currency")
+        
         if let avatar = userAvatar {
             userDefaultsManager.save(avatar, key: "user_avatar")
         }
