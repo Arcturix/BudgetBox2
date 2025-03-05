@@ -39,6 +39,9 @@ struct AddExpenseView: View {
     @State private var interestRate: String = ""
     @State private var expectedAnnualReturn: String = ""
     @State private var currentSavingsBalance: Double = 0.0
+    @State private var isStudentLoanPayment = false
+    @State private var showStudentLoanAlert = false
+    @State private var existingStudentLoanPayment: (budgetId: UUID, expense: Expense)? = nil
     
     // MARK: - UI Constants
     private let backgroundColor = Color(hex: "282C3E")
@@ -119,7 +122,17 @@ struct AddExpenseView: View {
                                     
                                     Menu {
                                         ForEach(ExpenseCategory.allCases, id: \.self) { category in
-                                            Button(action: { selectedCategory = category }) {
+                                            Button(action: {
+                                                selectedCategory = category
+                                                // Reset student loan payment flag if not debt category
+                                                if category != .debt {
+                                                    isStudentLoanPayment = false
+                                                }
+                                                // If changing to the debt category, check for existing student loan payment
+                                                if category == .debt {
+                                                    existingStudentLoanPayment = viewModel.findExistingStudentLoanPayment()
+                                                }
+                                            }) {
                                                 HStack {
                                                     Image(systemName: category.iconName)
                                                         .foregroundColor(Color(hex: category.colorHex))
@@ -163,6 +176,38 @@ struct AddExpenseView: View {
                             .frame(maxWidth: .infinity)
                         }
                         
+                        // Student Loan Payment Option (only shown for Debt category)
+                        if selectedCategory == .debt {
+                            cardView {
+                                Toggle(isOn: $isStudentLoanPayment) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Student Loan Payment")
+                                            .foregroundColor(textColor)
+                                        
+                                        Text("Attribute this payment to your student loan")
+                                            .font(.caption)
+                                            .foregroundColor(secondaryTextColor)
+                                    }
+                                }
+                                .toggleStyle(SwitchToggleStyle(tint: Color(hex: "F44336")))
+                                .onChange(of: isStudentLoanPayment) { newValue in
+                                    if newValue && existingStudentLoanPayment != nil {
+                                        showStudentLoanAlert = true
+                                    }
+                                }
+                                .alert("Another payment is already attributed", isPresented: $showStudentLoanAlert) {
+                                    Button("Cancel", role: .cancel) {
+                                        isStudentLoanPayment = false
+                                    }
+                                    Button("Replace", role: .destructive) {
+                                        // Keep isStudentLoanPayment as true
+                                    }
+                                } message: {
+                                    Text("Only one expense can be attributed to your student loan at a time. Do you want to replace the existing attribution?")
+                                }
+                            }
+                        }
+                        
                         // Savings fields (if category is savings)
                         if selectedCategory == .savings {
                             savingsFields
@@ -196,6 +241,10 @@ struct AddExpenseView: View {
                     }
                     .foregroundColor(textColor)
                 }
+            }
+            .onAppear {
+                // Check for existing student loan payment when view appears
+                existingStudentLoanPayment = viewModel.findExistingStudentLoanPayment()
             }
         }
     }
@@ -403,7 +452,8 @@ struct AddExpenseView: View {
             reminder: reminder,
             interestRate: selectedCategory == .savings ? interestRate : nil,
             expectedAnnualReturn: selectedCategory == .savings ? expectedAnnualReturn : nil,
-            startingBalance: selectedCategory == .savings ? currentSavingsBalance : nil
+            startingBalance: selectedCategory == .savings ? currentSavingsBalance : nil,
+            isStudentLoanPayment: selectedCategory == .debt && isStudentLoanPayment
         )
         
         // Add expense to the viewModel

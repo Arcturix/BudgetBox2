@@ -2,6 +2,8 @@ import SwiftUI
 
 // A component that displays key financial insights across all budgets
 struct BudgetInsights: View {
+    @EnvironmentObject var viewModel: BudgetViewModel
+    
     let budgets: [Budget]
     let showValues: Bool
     let selectedInsights: [InsightType]
@@ -264,6 +266,10 @@ struct BudgetInsights: View {
                 color: Color(hex: insight.defaultColor)
             )
             
+        case .studentLoanDebt:
+            // Create a custom student loan debt card
+            studentLoanDebtCard()
+            
         // Placeholder implementations for remaining insight types
         case .upcomingPayments, .savingsGoal, .spendingTrend, .categoryDistribution:
             insightCard(
@@ -273,6 +279,99 @@ struct BudgetInsights: View {
                 color: Color(hex: insight.defaultColor)
             )
         }
+    }
+    
+    // MARK: - Student Loan Debt Card
+    
+    private func studentLoanDebtCard() -> some View {
+        // Get student loan details from the viewModel
+        let loanBalance = viewModel.studentLoanBalance
+        let loanCurrency = viewModel.studentLoanCurrency
+        let payoffDate = viewModel.calculateStudentLoanPayoffDate()
+        let monthlyPayment = viewModel.getStudentLoanMonthlyPayment()
+        
+        return VStack(alignment: .leading, spacing: 4) {
+            // Title row with icon
+            HStack {
+                ZStack {
+                    Circle()
+                        .fill(Color(hex: "F44336").opacity(0.2))
+                        .frame(width: 40, height: 40)
+                    
+                    Image(systemName: "creditcard.and.arrow.down")
+                        .font(.system(size: 16))
+                        .foregroundColor(Color(hex: "F44336"))
+                }
+                
+                Text("Student Loan Debt")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                
+                Spacer()
+            }
+            
+            // Balance
+            if showValues {
+                Text(loanBalance, format: .currency(code: loanCurrency.rawValue))
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.top, 4)
+            } else {
+                Text("****")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.top, 4)
+            }
+            
+            // Show monthly payment if exists
+            if let payment = monthlyPayment {
+                if showValues {
+                    Text("Monthly Payment: \(payment, format: .currency(code: loanCurrency.rawValue))")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .padding(.top, 2)
+                } else {
+                    Text("Monthly Payment: ****")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .padding(.top, 2)
+                }
+            } else {
+                Text("No monthly payment set")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .padding(.top, 2)
+            }
+            
+            // Show projected payoff date if available
+            if let date = payoffDate {
+                if showValues {
+                    VStack(alignment: .leading) {
+                        Text("Projected Payoff:")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        
+                        HStack {
+                            Text(date, style: .date)
+                                .font(.caption)
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .padding(.top, 2)
+                } else {
+                    Text("Projected Payoff: ****")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .padding(.top, 2)
+                }
+            }
+        }
+        .padding()
+        .background(Color.black.opacity(0.4))
+        .cornerRadius(16)
+        .frame(maxWidth: .infinity)
     }
     
     // MARK: - Helper Views
@@ -364,9 +463,10 @@ struct BudgetInsights: View {
                 )
             ],
             showValues: true,
-            selectedInsights: [.netWorth, .savingsRate, .essentialExpenses],
+            selectedInsights: [.netWorth, .savingsRate, .essentialExpenses, .studentLoanDebt],
             onEditTapped: {}
         )
         .padding()
+        .environmentObject(BudgetViewModel())
     }
 }

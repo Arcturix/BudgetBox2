@@ -15,6 +15,7 @@ enum InsightType: String, CaseIterable, Identifiable, Codable {
     case savingsGoal = "Savings Goal"
     case spendingTrend = "Spending Trend"
     case categoryDistribution = "Category Distribution"
+    case studentLoanDebt = "Student Loan Debt" // New insight type
     
     var id: String { self.rawValue }
     
@@ -47,6 +48,8 @@ enum InsightType: String, CaseIterable, Identifiable, Codable {
             return "chart.xyaxis.line"
         case .categoryDistribution:
             return "chart.pie.fill"
+        case .studentLoanDebt:
+            return "creditcard.and.arrow.down" // Icon for student loan debt
         }
     }
     
@@ -79,6 +82,8 @@ enum InsightType: String, CaseIterable, Identifiable, Codable {
             return "FF5722" // Deep Orange
         case .categoryDistribution:
             return "607D8B" // Blue Grey
+        case .studentLoanDebt:
+            return "F44336" // Red for debt
         }
     }
 }

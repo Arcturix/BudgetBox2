@@ -24,6 +24,9 @@ struct EditExpenseView: View {
     @State private var interestRate: String
     @State private var expectedAnnualReturn: String
     @State private var currentBalance: Double
+    @State private var isStudentLoanPayment: Bool
+    @State private var showStudentLoanAlert = false
+    @State private var existingStudentLoanPayment: (budgetId: UUID, expense: Expense)? = nil
     
     // MARK: - UI Constants
     private let backgroundColor = Color(hex: "282C3E")
@@ -53,6 +56,7 @@ struct EditExpenseView: View {
         _interestRate = State(initialValue: expense.interestRate ?? "")
         _expectedAnnualReturn = State(initialValue: expense.expectedAnnualReturn ?? "")
         _currentBalance = State(initialValue: expense.startingBalance ?? 0.0)
+        _isStudentLoanPayment = State(initialValue: expense.isStudentLoanPayment)
     }
     
     // MARK: - Main View
@@ -128,6 +132,17 @@ struct EditExpenseView: View {
                                         ForEach(ExpenseCategory.allCases, id: \.self) { category in
                                             Button(action: {
                                                 selectedCategory = category
+                                                // If changing away from debt, reset student loan payment flag
+                                                if category != .debt {
+                                                    isStudentLoanPayment = false
+                                                }
+                                                // If changing to debt, check for existing student loan payment
+                                                if category == .debt && !isStudentLoanPayment {
+                                                    let existing = viewModel.findExistingStudentLoanPayment()
+                                                    if let existing = existing, existing.expense.id != expense.id {
+                                                        existingStudentLoanPayment = existing
+                                                    }
+                                                }
                                                 // If changing away from savings, clear savings fields
                                                 if category != .savings {
                                                     interestRate = ""
@@ -176,6 +191,38 @@ struct EditExpenseView: View {
                                 }
                             }
                             .frame(maxWidth: .infinity)
+                        }
+                        
+                        // Student Loan Payment Option (only shown for Debt category)
+                        if selectedCategory == .debt {
+                            cardView {
+                                Toggle(isOn: $isStudentLoanPayment) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Student Loan Payment")
+                                            .foregroundColor(textColor)
+                                        
+                                        Text("Attribute this payment to your student loan")
+                                            .font(.caption)
+                                            .foregroundColor(secondaryTextColor)
+                                    }
+                                }
+                                .toggleStyle(SwitchToggleStyle(tint: Color(hex: "F44336")))
+                                .onChange(of: isStudentLoanPayment) { newValue in
+                                    if newValue && existingStudentLoanPayment != nil {
+                                        showStudentLoanAlert = true
+                                    }
+                                }
+                                .alert("Another payment is already attributed", isPresented: $showStudentLoanAlert) {
+                                    Button("Cancel", role: .cancel) {
+                                        isStudentLoanPayment = false
+                                    }
+                                    Button("Replace", role: .destructive) {
+                                        // Keep isStudentLoanPayment as true
+                                    }
+                                } message: {
+                                    Text("Only one expense can be attributed to your student loan at a time. Do you want to replace the existing attribution?")
+                                }
+                            }
                         }
                         
                         // Savings fields (if category is savings)
@@ -280,6 +327,13 @@ struct EditExpenseView: View {
                     .foregroundColor(textColor)
                 }
             }
+            .onAppear {
+                // Check for existing student loan payment when view appears
+                let existing = viewModel.findExistingStudentLoanPayment()
+                if let existing = existing, existing.expense.id != expense.id {
+                    existingStudentLoanPayment = existing
+                }
+            }
         }
     }
     
@@ -303,108 +357,109 @@ struct EditExpenseView: View {
                                     expectedAnnualReturn = ""
                                 }
                             }
-                    }
-                }
-                
-                cardView {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Expected Annual Return")
-                            .font(.subheadline)
-                            .foregroundColor(secondaryTextColor)
-                        
-                        TextField("Ex: 5%", text: $expectedAnnualReturn)
-                            .keyboardType(.decimalPad)
-                            .foregroundColor(textColor)
-                            .padding(.vertical, 8)
-                            .onChange(of: expectedAnnualReturn) {
-                                if !expectedAnnualReturn.isEmpty {
-                                    interestRate = ""
-                                                                    }
-                                                                }
-                                                        }
-                                                    }
                                                 }
+                                            }
+                                            
+                                            cardView {
+                                                VStack(alignment: .leading, spacing: 8) {
+                                                    Text("Expected Annual Return")
+                                                        .font(.subheadline)
+                                                        .foregroundColor(secondaryTextColor)
+                                                    
+                                                    TextField("Ex: 5%", text: $expectedAnnualReturn)
+                                                        .keyboardType(.decimalPad)
+                                                        .foregroundColor(textColor)
+                                                        .padding(.vertical, 8)
+                                                        .onChange(of: expectedAnnualReturn) {
+                                                            if !expectedAnnualReturn.isEmpty {
+                                                                interestRate = ""
+                                                            }
+                                                        }
+                                                }
+                                            }
+                                        }
+                                        
+                                        cardView {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                Text("Starting Balance")
+                                                    .font(.subheadline)
+                                                    .foregroundColor(secondaryTextColor)
                                                 
-                                                cardView {
-                                                    VStack(alignment: .leading, spacing: 8) {
-                                                        Text("Starting Balance")
-                                                            .font(.subheadline)
-                                                            .foregroundColor(secondaryTextColor)
-                                                        
-                                                        HStack {
-                                                            TextField("Initial savings amount", value: $currentBalance, format: .number)
-                                                                .keyboardType(.decimalPad)
-                                                                .foregroundColor(textColor)
-                                                                .padding(.vertical, 8)
-                                                            
-                                                            Spacer()
-                                                            
-                                                            // Add a small currency symbol
-                                                            Text(selectedCurrency.symbol)
-                                                                .foregroundColor(secondaryTextColor)
-                                                                .padding(.trailing, 8)
-                                                        }
-                                                    }
+                                                HStack {
+                                                    TextField("Initial savings amount", value: $currentBalance, format: .number)
+                                                        .keyboardType(.decimalPad)
+                                                        .foregroundColor(textColor)
+                                                        .padding(.vertical, 8)
+                                                    
+                                                    Spacer()
+                                                    
+                                                    // Add a small currency symbol
+                                                    Text(selectedCurrency.symbol)
+                                                        .foregroundColor(secondaryTextColor)
+                                                        .padding(.trailing, 8)
                                                 }
                                             }
                                         }
-                                        
-                                        // Card View Wrapper
-                                        @ViewBuilder
-                                        private func cardView<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-                                            VStack {
-                                                content()
-                                            }
-                                            .padding()
-                                            .background(cardBackground)
-                                            .cornerRadius(cornerRadius)
-                                        }
-                                        
-                                        // MARK: - Actions
-                                        private func saveExpense() {
-                                            guard !name.isEmpty, let amountValue = Double(amount), amountValue > 0 else {
-                                                return
-                                            }
-                                            
-                                            var reminder: Reminder?
-                                            if showReminder {
-                                                reminder = Reminder(date: reminderDate, frequency: reminderFrequency)
-                                            }
-                                            
-                                            // Create updated expense
-                                            let updatedExpense = Expense(
-                                                id: expense.id,  // Keep the original ID
-                                                name: name,
-                                                amount: amountValue,
-                                                currency: selectedCurrency,
-                                                category: selectedCategory,
-                                                date: expenseDate,
-                                                isEssential: isEssential,
-                                                notes: notes,
-                                                reminder: reminder,
-                                                interestRate: selectedCategory == .savings ? interestRate : nil,
-                                                expectedAnnualReturn: selectedCategory == .savings ? expectedAnnualReturn : nil,
-                                                startingBalance: selectedCategory == .savings ? currentBalance : nil
-                                            )
-                                            
-                                            // Update expense in view model
-                                            viewModel.updateExpense(updatedExpense, in: budgetId)
-                                            
-                                            // Dismiss the view
-                                            dismiss()
-                                        }
                                     }
+                                }
+                                
+                                // Card View Wrapper
+                                @ViewBuilder
+                                private func cardView<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+                                    VStack {
+                                        content()
+                                    }
+                                    .padding()
+                                    .background(cardBackground)
+                                    .cornerRadius(cornerRadius)
+                                }
+                                
+                                // MARK: - Actions
+                                private func saveExpense() {
+                                    guard !name.isEmpty, let amountValue = Double(amount), amountValue > 0 else {
+                                        return
+                                    }
+                                    
+                                    var reminder: Reminder?
+                                    if showReminder {
+                                        reminder = Reminder(date: reminderDate, frequency: reminderFrequency)
+                                    }
+                                    
+                                    // Create updated expense
+                                    let updatedExpense = Expense(
+                                        id: expense.id,  // Keep the original ID
+                                        name: name,
+                                        amount: amountValue,
+                                        currency: selectedCurrency,
+                                        category: selectedCategory,
+                                        date: expenseDate,
+                                        isEssential: isEssential,
+                                        notes: notes,
+                                        reminder: reminder,
+                                        interestRate: selectedCategory == .savings ? interestRate : nil,
+                                        expectedAnnualReturn: selectedCategory == .savings ? expectedAnnualReturn : nil,
+                                        startingBalance: selectedCategory == .savings ? currentBalance : nil,
+                                        isStudentLoanPayment: selectedCategory == .debt && isStudentLoanPayment
+                                    )
+                                    
+                                    // Update expense in view model
+                                    viewModel.updateExpense(updatedExpense, in: budgetId)
+                                    
+                                    // Dismiss the view
+                                    dismiss()
+                                }
+                            }
 
-                                    #Preview {
-                                        let sampleExpense = Expense(
-                                            name: "Rent",
-                                            amount: 500,
-                                            currency: .gbp,
-                                            category: .housing,
-                                            isEssential: true
-                                        )
-                                        
-                                        return EditExpenseView(budgetId: UUID(), expense: sampleExpense, startYear: 2023)
-                                            .environmentObject(BudgetViewModel())
-                                            .preferredColorScheme(.dark)
-                                    }
+                            #Preview {
+                                let sampleExpense = Expense(
+                                    name: "Rent",
+                                    amount: 500,
+                                    currency: .gbp,
+                                    category: .housing,
+                                    isEssential: true
+                                )
+                                
+                                return EditExpenseView(budgetId: UUID(), expense: sampleExpense, startYear: 2023)
+                                    .environmentObject(BudgetViewModel())
+                                    .preferredColorScheme(.dark)
+                            }

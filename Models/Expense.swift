@@ -11,9 +11,10 @@ struct Expense: Identifiable, Codable, Hashable, Equatable {
     var isEssential: Bool = false
     var notes: String = ""
     var reminder: Reminder?
-    var interestRate: String? // New property for interest rate
-    var expectedAnnualReturn: String? // New property for expected annual return
+    var interestRate: String? // Property for interest rate
+    var expectedAnnualReturn: String? // Property for expected annual return
     var startingBalance: Double? // Renamed from currentBalance
+    var isStudentLoanPayment: Bool = false // New property to identify student loan payments
     
     // Implement Hashable
     func hash(into hasher: inout Hasher) {
@@ -77,7 +78,7 @@ enum ExpenseCategory: String, Codable, CaseIterable, Hashable {
     case healthcare = "Healthcare"
     case shopping = "Shopping"
     case subscriptions = "Subscriptions"
-    case debt = "Debt" // New Debt category
+    case debt = "Debt" // Debt category
     case other = "Other"
     
     var iconName: String {

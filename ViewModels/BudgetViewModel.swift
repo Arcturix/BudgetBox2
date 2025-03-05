@@ -60,6 +60,61 @@ class BudgetViewModel: ObservableObject {
         saveSelectedInsights()
     }
     
+    // MARK: - Student Loan Methods
+    
+    // Check if there's already a student loan payment in a budget
+    func findExistingStudentLoanPayment() -> (budgetId: UUID, expense: Expense)? {
+        for budget in budgets {
+            if let expense = budget.expenses.first(where: { $0.isStudentLoanPayment }) {
+                return (budget.id, expense)
+            }
+        }
+        return nil
+    }
+    
+    // Get the monthly student loan payment amount
+    func getStudentLoanMonthlyPayment() -> Double? {
+        guard let existingPayment = findExistingStudentLoanPayment() else { return nil }
+        let expense = existingPayment.expense
+        
+        // Convert to the student loan currency if needed
+        if expense.currency == studentLoanCurrency {
+            return expense.amount
+        } else {
+            return expense.convertedAmount(to: studentLoanCurrency)
+        }
+    }
+    
+    // Calculate the projected payoff date for the student loan
+    func calculateStudentLoanPayoffDate() -> Date? {
+        guard let monthlyPayment = getStudentLoanMonthlyPayment(),
+              monthlyPayment > 0,
+              studentLoanBalance > 0 else { return nil }
+        
+        // Convert annual interest rate to monthly
+        let monthlyInterestRate = studentLoanInterestRate / 100 / 12
+        
+        // If no interest or very low payment, use simple division
+        if monthlyInterestRate <= 0 || monthlyPayment <= (studentLoanBalance * monthlyInterestRate) {
+            let months = ceil(studentLoanBalance / monthlyPayment)
+            return Calendar.current.date(byAdding: .month, value: Int(months), to: Date())
+        }
+        
+        // Calculate number of months to pay off using loan amortization formula
+        // n = -log(1 - rP/A) / log(1 + r)
+        // where:
+        // n = number of months
+        // r = monthly interest rate as a decimal
+        // P = principal (loan balance)
+        // A = monthly payment
+        
+        let numerator = -log(1 - (monthlyInterestRate * studentLoanBalance / monthlyPayment))
+        let denominator = log(1 + monthlyInterestRate)
+        let numberOfMonths = ceil(numerator / denominator)
+        
+        return Calendar.current.date(byAdding: .month, value: Int(numberOfMonths), to: Date())
+    }
+    
     // MARK: - Insights Management
     
     // Load selected insights from UserDefaults
@@ -134,6 +189,26 @@ class BudgetViewModel: ObservableObject {
     
     // MARK: - Expense Operations
     func addExpense(_ expense: Expense, to budgetId: UUID) {
+        // If this is a student loan payment, check if one already exists
+        if expense.isStudentLoanPayment {
+            if let existing = findExistingStudentLoanPayment() {
+                // If existing in same budget, update it instead of adding a new one
+                if existing.budgetId == budgetId {
+                    updateExpense(expense, in: budgetId)
+                    return
+                }
+                
+                // If existing in a different budget, remove the flag from the old one
+                // and add the new one with the flag
+                if let budgetIndex = budgets.firstIndex(where: { $0.id == existing.budgetId }),
+                   let expenseIndex = budgets[budgetIndex].expenses.firstIndex(where: { $0.id == existing.expense.id }) {
+                    var updatedExpense = budgets[budgetIndex].expenses[expenseIndex]
+                    updatedExpense.isStudentLoanPayment = false
+                    budgets[budgetIndex].expenses[expenseIndex] = updatedExpense
+                }
+            }
+        }
+        
         if let index = budgets.firstIndex(where: { $0.id == budgetId }) {
             // Check if limit is reached and enabled
             if budgetItemLimitEnabled && budgets[index].expenses.count >= 10 {
@@ -153,6 +228,19 @@ class BudgetViewModel: ObservableObject {
     }
     
     func updateExpense(_ expense: Expense, in budgetId: UUID) {
+        // If this is a student loan payment, check if one already exists
+        if expense.isStudentLoanPayment {
+            if let existing = findExistingStudentLoanPayment(), existing.expense.id != expense.id {
+                // If existing in a different budget, remove the flag from the old one
+                if let budgetIndex = budgets.firstIndex(where: { $0.id == existing.budgetId }),
+                   let expenseIndex = budgets[budgetIndex].expenses.firstIndex(where: { $0.id == existing.expense.id }) {
+                    var updatedExpense = budgets[budgetIndex].expenses[expenseIndex]
+                    updatedExpense.isStudentLoanPayment = false
+                    budgets[budgetIndex].expenses[expenseIndex] = updatedExpense
+                }
+            }
+        }
+        
         if let budgetIndex = budgets.firstIndex(where: { $0.id == budgetId }),
            let expenseIndex = budgets[budgetIndex].expenses.firstIndex(where: { $0.id == expense.id }) {
             // Update expense in the budget
