@@ -1,3 +1,5 @@
+// In Views/Components/ExpenseRow.swift
+
 import SwiftUI
 
 struct ExpenseRow: View {
@@ -9,6 +11,15 @@ struct ExpenseRow: View {
     
     // MARK: - State
     @State private var showNotes = false
+    
+    // MARK: - Computed Properties
+    private var truncatedName: String {
+        // Limit to 25 characters to ensure it fits on one line
+        if expense.name.count > 25 {
+            return String(expense.name.prefix(22)) + "..."
+        }
+        return expense.name
+    }
     
     // MARK: - Body
     var body: some View {
@@ -31,9 +42,10 @@ struct ExpenseRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     // Title row
                     HStack {
-                        Text(expense.name)
+                        Text(truncatedName)
                             .font(.headline)
                             .foregroundColor(.white)
+                            .lineLimit(1)
                         
                         // Notes icon - shows if the expense has notes
                         if !expense.notes.isEmpty {
@@ -190,6 +202,14 @@ struct ExpenseRow: View {
             date: Date(),
             notes: "Monthly retirement contribution",
             reminder: Reminder(date: Date(), frequency: .monthly)
+        ),
+        Expense(
+            name: "This is a very long expense name that should be truncated properly",
+            amount: 50,
+            currency: .usd,
+            category: .shopping,
+            date: Date(),
+            notes: "This is an example of a very long expense name"
         )
     ]
     
