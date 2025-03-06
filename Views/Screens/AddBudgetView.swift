@@ -12,6 +12,7 @@ struct AddBudgetView: View {
     @State private var isMonthly = true
     @State private var selectedMonth = Calendar.current.component(.month, from: Date())
     @State private var selectedYear = Calendar.current.component(.year, from: Date())
+    @State private var isActive = true // Default to active
 
     var body: some View {
         NavigationView {
@@ -63,8 +64,6 @@ struct AddBudgetView: View {
                             }
                             .frame(minWidth: 0, maxWidth: .infinity)
                         }
-
-
 
                         // Budget type
                         VStack(alignment: .leading) {
@@ -119,6 +118,23 @@ struct AddBudgetView: View {
                         }
                         .frame(maxWidth: .infinity)
 
+                        // Active status toggle
+                        VStack(alignment: .leading) {
+                            Toggle(isOn: $isActive) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Active Budget")
+                                        .foregroundColor(.white)
+                                    
+                                    Text("Inactive budgets are excluded from insights and calculations")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            .toggleStyle(SwitchToggleStyle(tint: Color(hex: "A169F7")))
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(10)
+                        }
 
                         // Icon picker
                         VStack(alignment: .leading) {
@@ -183,7 +199,8 @@ struct AddBudgetView: View {
             colorHex: selectedColor,
             isMonthly: isMonthly,
             startMonth: selectedMonth,
-            startYear: selectedYear
+            startYear: selectedYear,
+            isActive: isActive
         )
 
         viewModel.addBudget(newBudget)
@@ -196,6 +213,7 @@ struct AddBudgetView_Previews: PreviewProvider {
     static var previews: some View {
         AddBudgetView()
             .environmentObject(BudgetViewModel())
+            .preferredColorScheme(.dark)
     }
 }
 #endif

@@ -4,6 +4,7 @@ struct HomeView: View {
     @EnvironmentObject var viewModel: BudgetViewModel
     @State private var showingAddBudget = false
     @State private var showingEditInsights = false
+    @State private var showingBudgetStatusSettings = false
     
     // MARK: - Layout Constants (Adjust these to fine-tune the layout)
     private let horizontalMargin: CGFloat = 44 // Increase this for more margin from edges
@@ -40,6 +41,16 @@ struct HomeView: View {
                         
                         Spacer()
                         
+                        // Budget Status Filter Button
+                        Button(action: {
+                            showingBudgetStatusSettings = true
+                        }) {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
+                                .foregroundColor(.white)
+                                .font(.title2)
+                        }
+                        .padding(.horizontal, 5)
+                        
                         // Show/Hide Values Button
                         Button(action: {
                             viewModel.toggleShowValues()
@@ -48,7 +59,7 @@ struct HomeView: View {
                                 .foregroundColor(.white)
                                 .font(.title2)
                         }
-                        .padding(.horizontal, 10)
+                        .padding(.horizontal, 5)
                         
                         // Profile Button - now larger with white border
                         NavigationLink(destination: ProfileView().environmentObject(viewModel)) {
@@ -75,11 +86,73 @@ struct HomeView: View {
                     // Add significant space between title and first card
                     .padding(.bottom, titleBottomSpacing)
                     
+                    // Status indicator and filter info
+                    if !viewModel.visibleBudgets.isEmpty {
+                        HStack {
+                            if viewModel.budgets.count != viewModel.visibleBudgets.count {
+                                Text("Showing \(viewModel.visibleBudgets.count) of \(viewModel.budgets.count) budgets")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            Spacer()
+                            
+                            if viewModel.budgets.count != viewModel.activeBudgets.count {
+                                Text("\(viewModel.activeBudgets.count) active, \(viewModel.budgets.count - viewModel.activeBudgets.count) inactive")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .padding(.horizontal, horizontalMargin)
+                        .padding(.bottom, 10)
+                    }
+                    
                     ScrollView {
                         VStack(spacing: 24) {
+                            // Empty state message if no visible budgets
+                            if viewModel.visibleBudgets.isEmpty {
+                                if viewModel.budgets.isEmpty {
+                                    // No budgets at all
+                                    VStack(spacing: 16) {
+                                        Image(systemName: "tray")
+                                            .font(.system(size: 50))
+                                            .foregroundColor(.gray)
+                                        
+                                        Text("No budgets yet")
+                                            .font(.headline)
+                                            .foregroundColor(.white)
+                                        
+                                        Text("Add your first budget to get started")
+                                            .foregroundColor(.gray)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.top, 60)
+                                } else {
+                                    // Has budgets but all are filtered out
+                                    VStack(spacing: 16) {
+                                        Image(systemName: "eye.slash")
+                                            .font(.system(size: 50))
+                                            .foregroundColor(.gray)
+                                        
+                                        Text("No visible budgets")
+                                            .font(.headline)
+                                            .foregroundColor(.white)
+                                        
+                                        Button(action: {
+                                            showingBudgetStatusSettings = true
+                                        }) {
+                                            Text("Adjust filter settings")
+                                                .foregroundColor(Color(hex: "A169F7"))
+                                        }
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.top, 60)
+                                }
+                            }
+                            
                             // Budget List
                             LazyVStack(spacing: cardSpacing) {
-                                ForEach(viewModel.budgets) { budget in
+                                ForEach(viewModel.visibleBudgets) { budget in
                                     NavigationLink(destination: BudgetDetailView(budgetId: budget.id)) {
                                         VStack(alignment: .leading, spacing: 5) {
                                             // Header row with icon, name, and amount
@@ -92,11 +165,24 @@ struct HomeView: View {
                                                     .frame(width: 40, height: 40)
                                                     .padding(.trailing, 5)
                                                 
-                                                // Budget name and type
+                                                // Budget name and type with status indicator
                                                 VStack(alignment: .leading) {
-                                                    Text(budget.name)
-                                                        .font(.headline)
-                                                        .foregroundColor(.white)
+                                                    HStack {
+                                                        Text(budget.name)
+                                                            .font(.headline)
+                                                            .foregroundColor(.white)
+                                                        
+                                                        // Status indicator for inactive budgets
+                                                        if !budget.isActive {
+                                                            Text("INACTIVE")
+                                                                .font(.system(size: 10))
+                                                                .padding(.horizontal, 5)
+                                                                .padding(.vertical, 2)
+                                                                .background(Color.gray.opacity(0.5))
+                                                                .foregroundColor(.white)
+                                                                .cornerRadius(4)
+                                                        }
+                                                    }
                                                     
                                                     Text(budget.isMonthly ? "Monthly Budget" : "One-time Budget")
                                                         .font(.subheadline)
@@ -164,10 +250,19 @@ struct HomeView: View {
                                         .padding(.horizontal, cardHorizontalPadding)
                                         .padding(.vertical, cardVerticalPadding)
                                         .background(Color.black.opacity(0.6))
+                                        .opacity(budget.isActive ? 1.0 : 0.7) // Reduce opacity for inactive budgets
                                         .cornerRadius(20)
                                     }
                                     .buttonStyle(PlainButtonStyle())
                                     .contextMenu {
+                                        // Toggle active status option
+                                        Button(action: {
+                                            viewModel.toggleBudgetActive(id: budget.id)
+                                        }) {
+                                            Label(budget.isActive ? "Deactivate Budget" : "Activate Budget",
+                                                  systemImage: budget.isActive ? "pause.circle" : "play.circle")
+                                        }
+                                        
                                         NavigationLink(destination: EditBudgetView(budget: budget)) {
                                             Label("Edit", systemImage: "pencil")
                                         }
@@ -182,11 +277,11 @@ struct HomeView: View {
                                 .padding(.horizontal, horizontalMargin)
                             }
                             
-                            // Only show insights if there are budgets
-                            if !viewModel.budgets.isEmpty {
-                                // NEW: Budget Insights with Edit capability
+                            // Only show insights if there are active budgets
+                            if !viewModel.activeBudgets.isEmpty {
+                                // Budget Insights with Edit capability
                                 BudgetInsights(
-                                    budgets: viewModel.budgets,
+                                    budgets: viewModel.activeBudgets,
                                     showValues: viewModel.showValuesEnabled,
                                     selectedInsights: viewModel.selectedInsights,
                                     onEditTapped: {
@@ -197,6 +292,27 @@ struct HomeView: View {
                                 .background(Color.black.opacity(0.3)) // Semi-transparent background
                                 .cornerRadius(20) // Rounded corners to match budget cards
                                 .padding(.horizontal, horizontalMargin) // Match the budget cards' horizontal margins
+                            } else if !viewModel.budgets.isEmpty {
+                                // Show message when there are budgets but none are active
+                                VStack(spacing: 16) {
+                                    Image(systemName: "chart.bar.xaxis")
+                                        .font(.system(size: 30))
+                                        .foregroundColor(.gray)
+                                    
+                                    Text("No active budgets")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                    
+                                    Text("Activate a budget to see insights")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 30)
+                                .background(Color.black.opacity(0.3))
+                                .cornerRadius(20)
+                                .padding(.horizontal, horizontalMargin)
+                                .padding(.top, 24)
                             }
                             
                             // Add spacing at the bottom for proper scrolling
@@ -234,7 +350,129 @@ struct HomeView: View {
                 EditInsightsView()
                     .environmentObject(viewModel)
             }
+            .sheet(isPresented: $showingBudgetStatusSettings) {
+                BudgetStatusSettingsView()
+                    .environmentObject(viewModel)
+            }
             .navigationBarHidden(true)
+        }
+    }
+}
+
+// MARK: - Budget Status Settings View
+struct BudgetStatusSettingsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var viewModel: BudgetViewModel
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color(hex: "383C51")
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 20) {
+                    // Show/Hide Inactive Budgets Toggle
+                    Toggle(isOn: $viewModel.showInactiveBudgets) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Show Inactive Budgets")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            Text("Display budgets that are not included in calculations")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .toggleStyle(SwitchToggleStyle(tint: Color(hex: "A169F7")))
+                    .padding()
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(10)
+                    .onChange(of: viewModel.showInactiveBudgets) { _ in
+                        viewModel.saveData()
+                    }
+                    
+                    // Budget Status List
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Budget Status")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.horizontal)
+                        
+                        if viewModel.budgets.isEmpty {
+                            Text("No budgets created yet")
+                                .foregroundColor(.gray)
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        } else {
+                            ScrollView {
+                                VStack(spacing: 12) {
+                                    ForEach(viewModel.budgets) { budget in
+                                        HStack {
+                                            // Budget name with icon
+                                            HStack {
+                                                Image(systemName: budget.iconName)
+                                                    .foregroundColor(Color(hex: budget.colorHex))
+                                                
+                                                Text(budget.name)
+                                                    .foregroundColor(.white)
+                                            }
+                                            
+                                            Spacer()
+                                            
+                                            // Toggle switch
+                                            Toggle("", isOn: Binding(
+                                                get: { budget.isActive },
+                                                set: { _ in
+                                                    viewModel.toggleBudgetActive(id: budget.id)
+                                                }
+                                            ))
+                                            .labelsHidden()
+                                            .toggleStyle(SwitchToggleStyle(tint: Color(hex: "A169F7")))
+                                        }
+                                        .padding()
+                                        .background(Color.gray.opacity(0.2))
+                                        .cornerRadius(10)
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // Info about inactive budgets
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("About Inactive Budgets")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        
+                        Text("• Inactive budgets are excluded from insights and calculations")
+                            .foregroundColor(.gray)
+                        
+                        Text("• Use this feature to archive old budgets or create mockups")
+                            .foregroundColor(.gray)
+                        
+                        Text("• You can still view and edit inactive budgets")
+                            .foregroundColor(.gray)
+                    }
+                    .padding()
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                }
+                .padding()
+            }
+            .navigationTitle("Budget Status")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                }
+            }
         }
     }
 }
@@ -251,7 +489,8 @@ struct HomeView: View {
         colorHex: "FF5252", // Red color
         isMonthly: true,
         startMonth: 1,
-        startYear: 2023
+        startYear: 2023,
+        isActive: true
     )
     viewModel.addBudget(budget1)
     
@@ -263,7 +502,8 @@ struct HomeView: View {
         colorHex: "536DFE", // Blue color
         isMonthly: true,
         startMonth: 1,
-        startYear: 2023
+        startYear: 2023,
+        isActive: false // Inactive
     )
     viewModel.addBudget(budget2)
     
@@ -275,7 +515,8 @@ struct HomeView: View {
         colorHex: "9C27B0", // Purple color
         isMonthly: true,
         startMonth: 1,
-        startYear: 2023
+        startYear: 2023,
+        isActive: true
     )
     viewModel.addBudget(budget3)
     

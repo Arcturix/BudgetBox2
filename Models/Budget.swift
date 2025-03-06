@@ -11,6 +11,7 @@ struct Budget: Identifiable, Codable, Hashable, Equatable {
     var expenses: [Expense] = []
     var startMonth: Int
     var startYear: Int
+    var isActive: Bool = true // New property to determine if budget is active
     
     
     // Implement Hashable
