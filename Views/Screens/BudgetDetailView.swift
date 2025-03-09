@@ -11,7 +11,6 @@ struct BudgetDetailView: View {
     @State private var expenseToEdit: Expense?
     @State private var showTotalExpense = false // This shows the alternative view first
     @State private var refreshID = UUID() // Used for forcing view updates
-    @State private var showingActiveToggleConfirm = false
     
     // MARK: - Configurable UI Constants for easy testing on different screen sizes
     private let horizontalMargin: CGFloat = 20 // Adjust this value to change horizontal margins
@@ -51,30 +50,11 @@ struct BudgetDetailView: View {
                                 .padding(.horizontal, horizontalMargin)
 
                             HStack {
-                                VStack(alignment: .leading) {
-                                    Text(budget.name)
-                                        .font(.largeTitle)
-                                        .bold()
-                                        .foregroundColor(.white)
-                                    
-                                    // Status indicator
-                                    if !budget.isActive {
-                                        HStack {
-                                            Text("INACTIVE")
-                                                .font(.caption)
-                                                .padding(.horizontal, 8)
-                                                .padding(.vertical, 4)
-                                                .background(Color.gray.opacity(0.5))
-                                                .foregroundColor(.white)
-                                                .cornerRadius(8)
-                                            
-                                            Text("Not included in calculations")
-                                                .font(.caption)
-                                                .foregroundColor(.gray)
-                                        }
-                                    }
-                                }
-                                .padding(.horizontal, horizontalMargin)
+                                Text(budget.name)
+                                    .font(.largeTitle)
+                                    .bold()
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, horizontalMargin)
 
                                 Spacer()
 
@@ -239,22 +219,6 @@ struct BudgetDetailView: View {
                     .environmentObject(viewModel)
             }
         }
-        .alert(isPresented: $showingActiveToggleConfirm, content: {
-            if let budget = budget {
-                return Alert(
-                    title: Text(budget.isActive ? "Deactivate Budget?" : "Activate Budget?"),
-                    message: Text(budget.isActive ?
-                                 "Deactivating this budget will exclude it from insights and calculations. You can reactivate it anytime." :
-                                 "Activating this budget will include it in insights and calculations."),
-                    primaryButton: .default(Text(budget.isActive ? "Deactivate" : "Activate")) {
-                        viewModel.toggleBudgetActive(id: budget.id)
-                    },
-                    secondaryButton: .cancel()
-                )
-            } else {
-                return Alert(title: Text("Budget Not Found"))
-            }
-        })
         .onReceive(viewModel.stateUpdatePublisher) { updatedBudgetId in
             if updatedBudgetId == budgetId {
                 // Force refresh when this budget is updated
@@ -350,16 +314,6 @@ struct BudgetDetailView: View {
         Menu {
             Button("Edit Budget") {
                 isShowingEditBudgetView = true
-            }
-            
-            // Toggle active status
-            if let budget = budget {
-                Button(action: {
-                    showingActiveToggleConfirm = true
-                }) {
-                    Label(budget.isActive ? "Deactivate Budget" : "Activate Budget",
-                          systemImage: budget.isActive ? "pause.circle" : "play.circle")
-                }
             }
             
             Button("Duplicate Budget") {
@@ -689,8 +643,7 @@ struct BudgetDetailView_Previews: PreviewProvider {
             isMonthly: true,
             expenses: sampleExpenses,
             startMonth: 1,
-            startYear: 2023,
-            isActive: true
+            startYear: 2023
         )
         
         let viewModel = BudgetViewModel()
@@ -699,7 +652,6 @@ struct BudgetDetailView_Previews: PreviewProvider {
         return NavigationView {
             BudgetDetailView(budgetId: sampleBudget.id)
                 .environmentObject(viewModel)
-                .preferredColorScheme(.dark)
         }
     }
 }

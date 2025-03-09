@@ -13,7 +13,6 @@ struct EditBudgetView: View {
     @State private var isMonthly: Bool
     @State private var selectedMonth: Int
     @State private var selectedYear: Int
-    @State private var isActive: Bool
     
     init(budget: Budget) {
         self._budget = State(initialValue: budget)
@@ -25,7 +24,6 @@ struct EditBudgetView: View {
         self._isMonthly = State(initialValue: budget.isMonthly)
         self._selectedMonth = State(initialValue: budget.startMonth)
         self._selectedYear = State(initialValue: budget.startYear)
-        self._isActive = State(initialValue: budget.isActive)
     }
     
     var body: some View {
@@ -110,24 +108,7 @@ struct EditBudgetView: View {
                             }
                         }
                         .frame(maxWidth: .infinity)
-                        
-                        // Active status toggle
-                        VStack(alignment: .leading) {
-                            Toggle(isOn: $isActive) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Active Budget")
-                                        .foregroundColor(.white)
-                                    
-                                    Text("Inactive budgets are excluded from insights and calculations")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                }
-                            }
-                            .toggleStyle(SwitchToggleStyle(tint: Color(hex: "A169F7")))
-                            .padding()
-                            .background(Color.gray.opacity(0.2))
-                            .cornerRadius(10)
-                        }
+
                         
                         // Icon picker
                         VStack(alignment: .leading) {
@@ -194,8 +175,7 @@ struct EditBudgetView: View {
             isMonthly: isMonthly,
             expenses: budget.expenses,
             startMonth: selectedMonth,
-            startYear: selectedYear,
-            isActive: isActive  // Save the active status
+            startYear: selectedYear
         )
         
         viewModel.updateBudget(updatedBudget)
@@ -216,13 +196,11 @@ struct EditBudgetView_Previews: PreviewProvider {
             isMonthly: true,
             expenses: [],
             startMonth: 1,
-            startYear: 2023,
-            isActive: true
+            startYear: 2023
         )
         
         return EditBudgetView(budget: sampleBudget)
             .environmentObject(BudgetViewModel())
-            .preferredColorScheme(.dark)
     }
 }
 #endif

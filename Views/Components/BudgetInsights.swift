@@ -1,10 +1,10 @@
 import SwiftUI
 
-// A component that displays key financial insights across all active budgets
+// A component that displays key financial insights across all budgets
 struct BudgetInsights: View {
     @EnvironmentObject var viewModel: BudgetViewModel
     
-    let budgets: [Budget]  // This should now be only active budgets
+    let budgets: [Budget]
     let showValues: Bool
     let selectedInsights: [InsightType]
     let onEditTapped: () -> Void
@@ -125,25 +125,22 @@ struct BudgetInsights: View {
         return currencyCounts.max { $0.value < $1.value }?.key ?? .usd
     }
     
-    // MARK: - Layout Constants
+    // MARK: - Layout Constants (Customize these to adjust spacing and padding)
     
     // Padding for the entire component relative to screen edges
-    private let componentHorizontalPadding: CGFloat = 12
+    private let componentHorizontalPadding: CGFloat = 16
     
     // Vertical spacing between elements
-    private let verticalSpacing: CGFloat = 8
+    private let verticalSpacing: CGFloat = 16
     
     // Spacing between the title and insights grid
-    private let titleBottomSpacing: CGFloat = 8
+    private let titleBottomSpacing: CGFloat = 12
     
-    // Spacing between items
-    private let itemSpacing: CGFloat = 8
+    // Spacing between grid items
+    private let gridItemSpacing: CGFloat = 14
     
     // Padding for the entire component top and bottom
-    private let componentVerticalPadding: CGFloat = 16
-    
-    // Icon size
-    private let iconSize: CGFloat = 28
+    private let componentVerticalPadding: CGFloat = 20
     
     // MARK: - Body
     
@@ -164,40 +161,28 @@ struct BudgetInsights: View {
                             .foregroundColor(.white)
                         
                         Text("Edit")
-                            .font(.caption)
+                            .font(.subheadline)
                             .foregroundColor(.white)
                     }
                     .foregroundColor(Color(hex: "A169F7"))
-                    .padding(.vertical, 3)
-                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 10)
                     .background(Color.black.opacity(0.3))
-                    .cornerRadius(12)
+                    .cornerRadius(14)
                 }
             }
             .padding(.horizontal)
             .padding(.bottom, titleBottomSpacing)
             
-            // Note about active budgets only
-            if viewModel.budgets.count != viewModel.activeBudgets.count {
-                HStack {
-                    Image(systemName: "info.circle")
-                        .foregroundColor(.gray)
-                        .font(.caption2)
-                    Text("Showing insights for active budgets only")
-                        .font(.caption2)
-                        .foregroundColor(.gray)
+            // Linear Insights Layout
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: gridItemSpacing) {
+                    ForEach(selectedInsights) { insight in
+                        insightCardFor(insight: insight)
+                    }
                 }
                 .padding(.horizontal)
-                .padding(.bottom, 4)
             }
-            
-            // Single row compact insights
-            VStack(spacing: itemSpacing) {
-                ForEach(selectedInsights) { insight in
-                    insightCardFor(insight: insight)
-                }
-            }
-            .padding(.horizontal)
         }
         // Apply padding to the entire component
         .padding(.horizontal, componentHorizontalPadding)
@@ -210,7 +195,7 @@ struct BudgetInsights: View {
     private func insightCardFor(insight: InsightType) -> some View {
         switch insight {
         case .netWorth:
-            singleRowInsightCard(
+            insightCard(
                 icon: insight.icon,
                 title: insight.rawValue,
                 value: showValues ? netWorth.formatted(.currency(code: primaryCurrency.rawValue)) : "****",
@@ -218,7 +203,7 @@ struct BudgetInsights: View {
             )
             
         case .savingsRate:
-            singleRowInsightCard(
+            insightCard(
                 icon: insight.icon,
                 title: insight.rawValue,
                 value: showValues ? "\(Int(savingsRate))%" : "**%",
@@ -226,7 +211,7 @@ struct BudgetInsights: View {
             )
         
         case .essentialExpenses:
-            singleRowInsightCard(
+            insightCard(
                 icon: insight.icon,
                 title: insight.rawValue,
                 value: showValues ? "\(Int(essentialPercentage))%" : "**%",
@@ -234,7 +219,7 @@ struct BudgetInsights: View {
             )
         
         case .topCategory:
-            singleRowInsightCard(
+            insightCard(
                 icon: topCategory?.category.iconName ?? insight.icon,
                 title: insight.rawValue,
                 value: showValues ? topCategory?.category.rawValue ?? "None" : "****",
@@ -242,7 +227,7 @@ struct BudgetInsights: View {
             )
         
         case .budgetsExceeding:
-            singleRowInsightCard(
+            insightCard(
                 icon: budgetsExceedingLimit > 0 ? "exclamationmark.circle" : "checkmark.circle",
                 title: insight.rawValue,
                 value: "\(budgetsExceedingLimit)/\(budgets.count)",
@@ -250,7 +235,7 @@ struct BudgetInsights: View {
             )
             
         case .totalSpent:
-            singleRowInsightCard(
+            insightCard(
                 icon: insight.icon,
                 title: insight.rawValue,
                 value: showValues ? totalSpent.formatted(.currency(code: primaryCurrency.rawValue)) : "****",
@@ -258,7 +243,7 @@ struct BudgetInsights: View {
             )
             
         case .monthlyAverage:
-            singleRowInsightCard(
+            insightCard(
                 icon: insight.icon,
                 title: insight.rawValue,
                 value: showValues ? monthlyAverage.formatted(.currency(code: primaryCurrency.rawValue)) : "****",
@@ -266,7 +251,7 @@ struct BudgetInsights: View {
             )
             
         case .largestExpense:
-            singleRowInsightCard(
+            insightCard(
                 icon: largestExpense?.category.iconName ?? insight.icon,
                 title: insight.rawValue,
                 value: showValues ? (largestExpense != nil ? "\(largestExpense!.amount.formatted(.currency(code: largestExpense!.currency.rawValue)))" : "None") : "****",
@@ -274,7 +259,7 @@ struct BudgetInsights: View {
             )
             
         case .recentActivity:
-            singleRowInsightCard(
+            insightCard(
                 icon: recentActivity?.category.iconName ?? insight.icon,
                 title: insight.rawValue,
                 value: showValues ? (recentActivity != nil ? recentActivity!.name : "None") : "****",
@@ -282,12 +267,12 @@ struct BudgetInsights: View {
             )
             
         case .studentLoanDebt:
-            // Student loan needs special handling for the dual-stat (balance + payoff date)
-            studentLoanSingleRow()
+            // Create a custom student loan debt card
+            studentLoanDebtCard()
             
         // Placeholder implementations for remaining insight types
         case .upcomingPayments, .savingsGoal, .spendingTrend, .categoryDistribution:
-            singleRowInsightCard(
+            insightCard(
                 icon: insight.icon,
                 title: insight.rawValue,
                 value: "Coming Soon",
@@ -298,98 +283,133 @@ struct BudgetInsights: View {
     
     // MARK: - Student Loan Debt Card
     
-    private func studentLoanSingleRow() -> some View {
+    private func studentLoanDebtCard() -> some View {
         // Get student loan details from the viewModel
         let loanBalance = viewModel.studentLoanBalance
         let loanCurrency = viewModel.studentLoanCurrency
         let payoffDate = viewModel.calculateStudentLoanPayoffDate()
+        let monthlyPayment = viewModel.getStudentLoanMonthlyPayment()
         
-        return HStack(spacing: 8) {
-            // Icon
-            ZStack {
-                Circle()
-                    .fill(Color(hex: "F44336").opacity(0.2))
-                    .frame(width: iconSize, height: iconSize)
+        return VStack(alignment: .leading, spacing: 4) {
+            // Title row with icon
+            HStack {
+                ZStack {
+                    Circle()
+                        .fill(Color(hex: "F44336").opacity(0.2))
+                        .frame(width: 40, height: 40)
+                    
+                    Image(systemName: "creditcard.and.arrow.down")
+                        .font(.system(size: 16))
+                        .foregroundColor(Color(hex: "F44336"))
+                }
                 
-                Image(systemName: "creditcard.and.arrow.down")
-                    .font(.system(size: 12))
-                    .foregroundColor(Color(hex: "F44336"))
+                Text("Student Loan Debt")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                
+                Spacer()
             }
             
-            // Title
-            Text("Student Loan Debt")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-                .lineLimit(1)
-            
-            Spacer()
-            
-            // Value section - includes balance and payoff date if available
+            // Balance
             if showValues {
-                VStack(alignment: .trailing, spacing: 1) {
-                    // Balance
-                    Text(loanBalance, format: .currency(code: loanCurrency.rawValue))
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                    
-                    // Payoff date (if available)
-                    if let date = payoffDate {
-                        Text("Until \(date, style: .date)")
-                            .font(.caption2)
-                            .foregroundColor(.gray)
-                            .lineLimit(1)
-                    }
-                }
-            } else {
-                Text("****")
-                    .font(.subheadline)
+                Text(loanBalance, format: .currency(code: loanCurrency.rawValue))
+                    .font(.headline)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
+                    .padding(.top, 4)
+            } else {
+                Text("****")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.top, 4)
+            }
+            
+            // Show monthly payment if exists
+            if let payment = monthlyPayment {
+                if showValues {
+                    Text("Monthly Payment: \(payment, format: .currency(code: loanCurrency.rawValue))")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .padding(.top, 2)
+                } else {
+                    Text("Monthly Payment: ****")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .padding(.top, 2)
+                }
+            } else {
+                Text("No monthly payment set")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .padding(.top, 2)
+            }
+            
+            // Show projected payoff date if available
+            if let date = payoffDate {
+                if showValues {
+                    VStack(alignment: .leading) {
+                        Text("Projected Payoff:")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        
+                        HStack {
+                            Text(date, style: .date)
+                                .font(.caption)
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .padding(.top, 2)
+                } else {
+                    Text("Projected Payoff: ****")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .padding(.top, 2)
+                }
             }
         }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 12)
+        .padding()
         .background(Color.black.opacity(0.4))
-        .cornerRadius(12)
+        .cornerRadius(16)
+        .frame(maxWidth: .infinity)
     }
     
     // MARK: - Helper Views
     
-    private func singleRowInsightCard(icon: String, title: String, value: String, color: Color) -> some View {
-        HStack(spacing: 8) {
-            // Icon
+    private func insightCard(icon: String, title: String, value: String, color: Color) -> some View {
+        HStack {
+            // Icon with color background
             ZStack {
                 Circle()
                     .fill(color.opacity(0.2))
-                    .frame(width: iconSize, height: iconSize)
+                    .frame(width: 40, height: 40)
                 
                 Image(systemName: icon)
-                    .font(.system(size: 12))
+                    .font(.system(size: 16))
                     .foregroundColor(color)
             }
             
-            // Title
-            Text(title)
-                .font(.subheadline)
-                .foregroundColor(.gray)
-                .lineLimit(1)
+            // Content
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                
+                Text(value)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+            }
+            .padding(.leading, 8)
             
             Spacer()
-            
-            // Value
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
         }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 12)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
         .background(Color.black.opacity(0.4))
-        .cornerRadius(12)
+        .cornerRadius(16)
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -439,12 +459,11 @@ struct BudgetInsights: View {
                         )
                     ],
                     startMonth: 1,
-                    startYear: 2023,
-                    isActive: true
+                    startYear: 2023
                 )
             ],
             showValues: true,
-            selectedInsights: [.netWorth, .savingsRate, .essentialExpenses, .studentLoanDebt, .topCategory, .totalSpent],
+            selectedInsights: [.netWorth, .savingsRate, .essentialExpenses, .studentLoanDebt],
             onEditTapped: {}
         )
         .padding()

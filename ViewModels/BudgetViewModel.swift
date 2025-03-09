@@ -12,7 +12,6 @@ class BudgetViewModel: ObservableObject {
     @Published var studentLoanBalance: Double = 0.0
     @Published var studentLoanInterestRate: Double = 0.0
     @Published var studentLoanCurrency: Currency = .usd
-    @Published var showInactiveBudgets: Bool = true // New property to control visibility of inactive budgets
     
     // MARK: - Private Properties
     private let saveKey = "saved_budgets"
@@ -38,7 +37,6 @@ class BudgetViewModel: ObservableObject {
         budgetItemLimitEnabled = userDefaultsManager.load(key: "budget_item_limit_enabled") ?? true
         studentLoanBalance = userDefaultsManager.load(key: "student_loan_balance") ?? 0.0
         studentLoanInterestRate = userDefaultsManager.load(key: "student_loan_interest_rate") ?? 0.0
-        showInactiveBudgets = userDefaultsManager.load(key: "show_inactive_budgets") ?? true
         
         // Load student loan currency with fallback to USD
         if let currencyString: String = userDefaultsManager.load(key: "student_loan_currency") {
@@ -55,39 +53,11 @@ class BudgetViewModel: ObservableObject {
         userDefaultsManager.save(studentLoanBalance, key: "student_loan_balance")
         userDefaultsManager.save(studentLoanInterestRate, key: "student_loan_interest_rate")
         userDefaultsManager.save(studentLoanCurrency.rawValue, key: "student_loan_currency")
-        userDefaultsManager.save(showInactiveBudgets, key: "show_inactive_budgets")
         
         if let avatar = userAvatar {
             userDefaultsManager.save(avatar, key: "user_avatar")
         }
         saveSelectedInsights()
-    }
-    
-    // MARK: - Active/Inactive Budget Methods
-    
-    // Get only active budgets (for calculations and insights)
-    var activeBudgets: [Budget] {
-        return budgets.filter { $0.isActive }
-    }
-    
-    // Get budgets that should be displayed based on showInactiveBudgets setting
-    var visibleBudgets: [Budget] {
-        return showInactiveBudgets ? budgets : activeBudgets
-    }
-    
-    // Toggle budget active status
-    func toggleBudgetActive(id: UUID) {
-        if let index = budgets.firstIndex(where: { $0.id == id }) {
-            budgets[index].isActive.toggle()
-            saveData()
-            triggerStateUpdate(for: id)
-        }
-    }
-    
-    // Toggle showing inactive budgets
-    func toggleShowInactiveBudgets() {
-        showInactiveBudgets.toggle()
-        saveData()
     }
     
     // MARK: - Student Loan Methods
