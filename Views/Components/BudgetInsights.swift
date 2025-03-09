@@ -296,7 +296,7 @@ struct BudgetInsights: View {
                     .fill(Color(hex: "F44336").opacity(0.2))
                     .frame(width: 36, height: 36)
                 
-                Image(systemName: "creditcard.and.arrow.down")
+                Image(systemName: "building.columns")
                     .font(.system(size: 16))
                     .foregroundColor(Color(hex: "F44336"))
             }
@@ -304,7 +304,7 @@ struct BudgetInsights: View {
             // Title and Balance
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
-                    Text("Student Loan Debt")
+                    Text("Student Debt")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                     

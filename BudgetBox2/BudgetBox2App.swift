@@ -6,6 +6,7 @@ import SwiftUI
 struct BudgetBoxApp: App {
     @StateObject private var budgetViewModel = BudgetViewModel()
     @AppStorage("colorScheme") private var colorScheme: Int = 0 // 0: system, 1: light, 2: dark
+    @State private var notificationPermissionRequested = false
     
     var body: some Scene {
         WindowGroup {
@@ -15,6 +16,16 @@ struct BudgetBoxApp: App {
                 .onAppear {
                     // Hide keyboard when tapped outside of text field
                     UITapGestureRecognizer.endEditingOnTap()
+                    
+                    // Request notification permissions if not done yet
+                    if !notificationPermissionRequested {
+                        NotificationService.shared.requestPermissions { granted in
+                            if granted {
+                                self.budgetViewModel.scheduleNotifications()
+                            }
+                            notificationPermissionRequested = true
+                        }
+                    }
                 }
         }
     }

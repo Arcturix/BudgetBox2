@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AA1138932D75A8FB0076D6E8 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1138922D75A8F70076D6E8 /* ThemeManager.swift */; };
+		AA1B177F2D7E304000846A9E /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B177E2D7E304000846A9E /* NotificationService.swift */; };
 		AA3AD1A62D733F1100556712 /* BudgetDetailComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3AD1A52D733F0500556712 /* BudgetDetailComponents.swift */; };
 		AA3AD1A82D737ADA00556712 /* SavingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3AD1A72D737AD600556712 /* SavingsView.swift */; };
 		AA3AD1AA2D738B2800556712 /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3AD1A92D738B2200556712 /* AnalysisView.swift */; };
@@ -54,6 +55,7 @@
 
 /* Begin PBXFileReference section */
 		AA1138922D75A8F70076D6E8 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
+		AA1B177E2D7E304000846A9E /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = SOURCE_ROOT; };
 		AA3AD1A52D733F0500556712 /* BudgetDetailComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetDetailComponents.swift; sourceTree = "<group>"; };
 		AA3AD1A72D737AD600556712 /* SavingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavingsView.swift; sourceTree = "<group>"; };
 		AA3AD1A92D738B2200556712 /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 		AAE312BF2D6F786100ACD756 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				AA1B177E2D7E304000846A9E /* NotificationService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -398,6 +401,7 @@
 				AA66546A2D773D6F000A481D /* InsightType.swift in Sources */,
 				AAE312DF2D6F7A2E00ACD756 /* CurrencyPicker.swift in Sources */,
 				AAE312D42D6F7A1600ACD756 /* Expense.swift in Sources */,
+				AA1B177F2D7E304000846A9E /* NotificationService.swift in Sources */,
 				AAE312D82D6F7A2800ACD756 /* HomeView.swift in Sources */,
 				AAE312D92D6F7A2800ACD756 /* BudgetDetailView.swift in Sources */,
 				AA6654682D770255000A481D /* BudgetInsights.swift in Sources */,

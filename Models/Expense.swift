@@ -92,7 +92,7 @@ enum ExpenseCategory: String, Codable, CaseIterable, Hashable {
         case .healthcare: return "heart.fill"
         case .shopping: return "bag.fill"
         case .subscriptions: return "tv.fill"
-        case .debt: return "creditcard.and.arrow.down" // Icon for debt
+        case .debt: return "building.columns" // Icon for debt
         case .other: return "ellipsis.circle.fill"
         }
     }

@@ -60,6 +60,18 @@ class BudgetViewModel: ObservableObject {
         saveSelectedInsights()
     }
     
+    // MARK: - Notifications Management
+    func scheduleNotifications() {
+        // Schedule notifications for all expenses with reminders
+        for budget in budgets {
+            for expense in budget.expenses {
+                if expense.reminder != nil {
+                    NotificationService.shared.scheduleNotification(for: expense, budgetName: budget.name)
+                }
+            }
+        }
+    }
+    
     // MARK: - Student Loan Methods
     
     // Check if there's already a student loan payment in a budget
@@ -170,6 +182,11 @@ class BudgetViewModel: ObservableObject {
     
     func deleteBudget(id: UUID) {
         if let index = budgets.firstIndex(where: { $0.id == id }) {
+            // Cancel notifications for all expenses in this budget
+            for expense in budgets[index].expenses {
+                NotificationService.shared.cancelNotification(for: expense.id)
+            }
+            
             budgets.remove(at: index)
             saveData()
         }
@@ -181,9 +198,23 @@ class BudgetViewModel: ObservableObject {
             newBudget.id = UUID() // Generate a new UUID
             newBudget.name = "\(budgetToDuplicate.name) (Copy)"
             
+            // Create new expenses with new IDs to avoid notification conflicts
+            newBudget.expenses = budgetToDuplicate.expenses.map { expense in
+                var newExpense = expense
+                newExpense.id = UUID()
+                return newExpense
+            }
+            
             // Add the duplicated budget
             budgets.append(newBudget)
             saveData()
+            
+            // Schedule notifications for the duplicated expenses
+            for expense in newBudget.expenses {
+                if expense.reminder != nil {
+                    NotificationService.shared.scheduleNotification(for: expense, budgetName: newBudget.name)
+                }
+            }
         }
     }
     
@@ -224,6 +255,11 @@ class BudgetViewModel: ObservableObject {
             
             // Trigger reactive state update
             triggerStateUpdate(for: budgetId)
+            
+            // Schedule notification if needed
+            if expense.reminder != nil {
+                NotificationService.shared.scheduleNotification(for: expense, budgetName: budgets[index].name)
+            }
         }
     }
     
@@ -251,10 +287,20 @@ class BudgetViewModel: ObservableObject {
             
             // Trigger reactive state update
             triggerStateUpdate(for: budgetId)
+            
+            // Update notification if needed
+            if expense.reminder != nil {
+                NotificationService.shared.scheduleNotification(for: expense, budgetName: budgets[budgetIndex].name)
+            } else {
+                NotificationService.shared.cancelNotification(for: expense.id)
+            }
         }
     }
     
     func deleteExpense(id: UUID, from budgetId: UUID) {
+        // Cancel any notifications for this expense
+        NotificationService.shared.cancelNotification(for: id)
+        
         if let budgetIndex = budgets.firstIndex(where: { $0.id == budgetId }) {
             // Remove expense from the budget
             budgets[budgetIndex].expenses.removeAll(where: { $0.id == id })
