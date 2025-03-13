@@ -14,19 +14,23 @@ struct BudgetBoxApp: App {
                 .environmentObject(budgetViewModel)
                 .preferredColorScheme(colorSchemeValue)
                 .onAppear {
-                    // Hide keyboard when tapped outside of text field
-                    UITapGestureRecognizer.endEditingOnTap()
-                    
-                    // Request notification permissions if not done yet
-                    if !notificationPermissionRequested {
-                        NotificationService.shared.requestPermissions { granted in
-                            if granted {
-                                self.budgetViewModel.scheduleNotifications()
-                            }
-                            notificationPermissionRequested = true
-                        }
-                    }
+                    setupApp()
                 }
+        }
+    }
+    
+    private func setupApp() {
+        // Hide keyboard when tapped outside of text field
+        UITapGestureRecognizer.endEditingOnTap()
+        
+        // Request notification permissions if not done yet
+        if !notificationPermissionRequested {
+            NotificationService.shared.requestPermissions { granted in
+                if granted {
+                    self.budgetViewModel.scheduleNotifications()
+                }
+                notificationPermissionRequested = true
+            }
         }
     }
     
@@ -46,11 +50,11 @@ extension UITapGestureRecognizer {
         tapGesture.cancelsTouchesInView = false
         tapGesture.delegate = TapGestureDelegate.shared
         
-        // Get the key window using UIWindowScene instead of deprecated windows property
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first else { return }
-        
-        window.addGestureRecognizer(tapGesture)
+        // Get the key window using UIWindowScene
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.addGestureRecognizer(tapGesture)
+        }
     }
 }
 

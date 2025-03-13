@@ -540,49 +540,56 @@ struct ExpenseRowWithSwipe: View {
             .gesture(
                 DragGesture()
                     .onChanged { gesture in
-                        if !isSwiping {
-                            isSwiping = true
+                        // Only process horizontal drags (when x movement is greater than y movement)
+                        if abs(gesture.translation.width) > abs(gesture.translation.height) {
+                            if !isSwiping {
+                                isSwiping = true
+                            }
+                            
+                            // Limit the drag distance
+                            let dragDistance = gesture.translation.width
+                            if dragDistance > 0 {
+                                // Right swipe (for edit)
+                                offset = min(dragDistance, 120)
+                                showEditButton = offset > 60
+                                showDeleteButton = false
+                            } else {
+                                // Left swipe (for delete)
+                                offset = max(dragDistance, -120)
+                                showDeleteButton = offset < -60
+                                showEditButton = false
+                            }
                         }
-                        
-                        // Limit the drag distance
-                        let dragDistance = gesture.translation.width
-                        if dragDistance > 0 {
-                            // Right swipe (for edit)
-                            offset = min(dragDistance, 120)
-                            showEditButton = offset > 60
-                            showDeleteButton = false
-                        } else {
-                            // Left swipe (for delete)
-                            offset = max(dragDistance, -120)
-                            showDeleteButton = offset < -60
-                            showEditButton = false
-                        }
+                        // If gesture is primarily vertical, do nothing and let the ScrollView handle it
                     }
                     .onEnded { gesture in
-                        isSwiping = false
-                        
-                        // Decide whether to snap back or complete the action
-                        let dragDistance = gesture.translation.width
-                        if dragDistance > 100 {
-                            // Complete edit action
-                            withAnimation {
-                                offset = 0
-                                showEditButton = false
-                                onEdit()
-                            }
-                        } else if dragDistance < -100 {
-                            // Show delete confirmation instead of immediately deleting
-                            withAnimation {
-                                offset = 0
-                                showDeleteButton = false
-                                showDeleteConfirmation = true
-                            }
-                        } else {
-                            // Snap back to original position
-                            withAnimation {
-                                offset = 0
-                                showEditButton = false
-                                showDeleteButton = false
+                        // Only process horizontal drags
+                        if abs(gesture.translation.width) > abs(gesture.translation.height) {
+                            isSwiping = false
+                            
+                            // Decide whether to snap back or complete the action
+                            let dragDistance = gesture.translation.width
+                            if dragDistance > 100 {
+                                // Complete edit action
+                                withAnimation {
+                                    offset = 0
+                                    showEditButton = false
+                                    onEdit()
+                                }
+                            } else if dragDistance < -100 {
+                                // Show delete confirmation instead of immediately deleting
+                                withAnimation {
+                                    offset = 0
+                                    showDeleteButton = false
+                                    showDeleteConfirmation = true
+                                }
+                            } else {
+                                // Snap back to original position
+                                withAnimation {
+                                    offset = 0
+                                    showEditButton = false
+                                    showDeleteButton = false
+                                }
                             }
                         }
                     }
@@ -609,7 +616,6 @@ struct ExpenseRowWithSwipe: View {
         }
     }
 }
-
 // Preview
 struct BudgetDetailView_Previews: PreviewProvider {
     static var previews: some View {

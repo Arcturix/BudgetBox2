@@ -203,6 +203,8 @@ struct BudgetSummaryCards: View {
     }
 }
 
+import SwiftUI
+
 // MARK: - Budget Items List
 struct BudgetItemsList: View {
     let expenses: [Expense]
@@ -211,13 +213,14 @@ struct BudgetItemsList: View {
     let budgetItemLimitEnabled: Bool
     let showValuesEnabled: Bool
     let budgetCurrency: Currency
-    let budgetColorHex: String // Add budget color hex
+    let budgetColorHex: String
     let onDeleteExpense: (UUID) -> Void
     let onEditExpense: (Expense) -> Void
     let refreshID: UUID
 
     var body: some View {
         VStack(alignment: .leading) {
+            // Header with count information
             HStack {
                 Text("Budget Items")
                     .foregroundColor(.white)
@@ -234,53 +237,59 @@ struct BudgetItemsList: View {
                 }
             }
             .padding(.horizontal)
-            .id(refreshID) // Force header to refresh when expenses change
+            .id(refreshID)
 
             if isEmpty {
+                // Empty state message
                 Text("No expenses yet")
                     .foregroundColor(.gray)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .id("empty-\(refreshID)") // Force empty state to refresh
+                    .id("empty-\(refreshID)")
             } else {
-                List {
-                    ForEach(expenses) { expense in
-                        ExpenseRow(
-                            expense: expense,
-                            showValues: showValuesEnabled,
-                            budgetCurrency: budgetCurrency,
-                            budgetColorHex: budgetColorHex // Pass budget color hex
-                        )
-                        .listRowBackground(Color.gray.opacity(0.1))
-                        .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                withAnimation {
-                                    onDeleteExpense(expense.id)
-                                }
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
-                        .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                            Button {
-                                onEditExpense(expense)
-                            } label: {
-                                Label("Edit", systemImage: "pencil")
-                            }
-                            .tint(.blue)
-                        }
-                        .id("expense-\(expense.id)-\(refreshID)") // Force each row to refresh when needed
-                    }
-                    .listRowSeparator(.hidden)
-                }
-                .listStyle(PlainListStyle())
-                .background(Color(hex: "383C51"))
-                .scrollContentBackground(.hidden)
-                .id("list-\(refreshID)") // Use refresh ID to force list view updates
-                .animation(.default, value: expenses.count) // Animate changes in the list count
+                // Expense list
+                expensesList
             }
         }
+    }
+    
+    private var expensesList: some View {
+        List {
+            ForEach(expenses) { expense in
+                ExpenseRow(
+                    expense: expense,
+                    showValues: showValuesEnabled,
+                    budgetCurrency: budgetCurrency,
+                    budgetColorHex: budgetColorHex
+                )
+                .listRowBackground(Color.gray.opacity(0.1))
+                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button(role: .destructive) {
+                        withAnimation {
+                            onDeleteExpense(expense.id)
+                        }
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
+                .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                    Button {
+                        onEditExpense(expense)
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    .tint(.blue)
+                }
+                .id("expense-\(expense.id)-\(refreshID)")
+            }
+            .listRowSeparator(.hidden)
+        }
+        .listStyle(PlainListStyle())
+        .background(Color(hex: "383C51"))
+        .scrollContentBackground(.hidden)
+        .id("list-\(refreshID)")
+        .animation(.default, value: expenses.count)
     }
 }
 

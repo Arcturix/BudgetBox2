@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 
-// This protocol can be used to create a reactive state update system
+// Protocol for reactive state updates
 protocol ReactiveStateUpdate {
     var stateUpdatePublisher: PassthroughSubject<UUID, Never> { get }
 }
@@ -17,18 +17,13 @@ extension View {
 
 // Extension for BudgetViewModel to make it a reactive state source
 extension BudgetViewModel: ReactiveStateUpdate {
-    // Access the subject if needed
     var stateUpdatePublisher: PassthroughSubject<UUID, Never> {
-        get {
-            // Create the subject if needed
-            if self._stateUpdatePublisher == nil {
-                self._stateUpdatePublisher = PassthroughSubject<UUID, Never>()
-            }
-            return self._stateUpdatePublisher!
+        if _stateUpdatePublisher == nil {
+            _stateUpdatePublisher = PassthroughSubject<UUID, Never>()
         }
+        return _stateUpdatePublisher!
     }
     
-    // Trigger a state update for a specific budget
     func triggerStateUpdate(for budgetId: UUID) {
         DispatchQueue.main.async {
             self.stateUpdatePublisher.send(budgetId)

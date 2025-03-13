@@ -1,5 +1,3 @@
-// Utilities/ThemeManager.swift
-
 import SwiftUI
 
 struct ThemeManager {
@@ -36,36 +34,14 @@ struct ThemeManager {
         static let primaryText = Color("PrimaryText")
         static let secondaryText = Color("SecondaryText")
         
-        // Accent colors - these could be static but are made adaptive for future flexibility
+        // Accent colors
         static let accent = Color("AccentColor")
         static let secondaryAccent = Color("SecondaryAccent")
         
-        // Alternative to using hex colors directly
-        static func fromHex(_ hex: String, darkMode: Bool = false) -> Color {
-            // Use the existing hex extension but adjust for dark mode if needed
-            if darkMode {
-                return Color(hex: adjustHexForDarkMode(hex))
-            } else {
-                return Color(hex: hex)
-            }
+        // Convert hex to Color
+        static func fromHex(_ hex: String) -> Color {
+            return Color(hex: hex)
         }
-        
-        // Helper to adjust hex colors for dark mode
-        private static func adjustHexForDarkMode(_ hex: String) -> String {
-            // This is a simple example - you might want to use a more sophisticated algorithm
-            // For now, we're just returning the original hex
-            return hex
-        }
-    }
-    
-    // Function to get adaptive colors based on a base color/hex
-    static func adaptiveColor(hex: String, for colorScheme: ColorScheme) -> Color {
-        let baseColor = Color(hex: hex)
-        
-        // For dark mode, we could brighten or adjust colors
-        // This is a simple implementation that just returns the same color
-        // You could implement more sophisticated transformations
-        return baseColor
     }
 }
 

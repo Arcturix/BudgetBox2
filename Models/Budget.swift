@@ -12,24 +12,21 @@ struct Budget: Identifiable, Codable, Hashable, Equatable {
     var startMonth: Int
     var startYear: Int
     
-    
     // Implement Hashable
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
     
-    // Implement Equatable
+    // Implement Equatable - simplified
     static func == (lhs: Budget, rhs: Budget) -> Bool {
         return lhs.id == rhs.id
     }
     
     var remainingAmount: Double {
         amount - expenses.reduce(0) { total, expense in
-            if expense.currency == currency {
-                return total + expense.amount
-            } else {
-                return total + expense.convertedAmount(to: currency)
-            }
+            total + (expense.currency == currency ?
+                     expense.amount :
+                     expense.convertedAmount(to: currency))
         }
     }
     

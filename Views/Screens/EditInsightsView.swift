@@ -1,3 +1,5 @@
+// Views/Screens/EditInsightsView.swift
+
 import SwiftUI
 
 struct EditInsightsView: View {
@@ -66,14 +68,14 @@ struct EditInsightsView: View {
             }
         }) {
             HStack {
-                // Icon with color background but white icon
+                // Icon with color background
                 ZStack {
                     Circle()
                         .fill(Color(hex: insight.defaultColor).opacity(0.3))
                         .frame(width: 40, height: 40)
                     
                     Image(systemName: insight.icon)
-                        .foregroundColor(.white) // Changed to white
+                        .foregroundColor(.white)
                         .font(.system(size: 16))
                 }
                 

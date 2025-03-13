@@ -31,21 +31,16 @@ struct BudgetCard: View {
                 Spacer()
                 
                 // Amount
-                if showValues {
-                    Text("\(budget.amount.formatted(.currency(code: budget.currency.rawValue)))")
-                        .font(.title3)
-                        .bold()
-                        .foregroundColor(ThemeManager.Colors.primaryText)
-                } else {
-                    Text("****")
-                        .font(.title3)
-                        .bold()
-                        .foregroundColor(ThemeManager.Colors.primaryText)
-                }
+                Text(showValues ?
+                     budget.amount.formatted(.currency(code: budget.currency.rawValue)) :
+                     "****")
+                    .font(.title3)
+                    .bold()
+                    .foregroundColor(ThemeManager.Colors.primaryText)
             }
             
             // Progress bar
-            BudgetProgressBar(
+            ProgressBarView(
                 percent: CGFloat(budget.percentRemaining) / 100,
                 color: Color(hex: budget.colorHex)
             )
@@ -59,15 +54,11 @@ struct BudgetCard: View {
                 
                 Spacer()
                 
-                if showValues {
-                    Text("\(budget.remainingAmount.formatted(.currency(code: budget.currency.rawValue)))")
-                        .foregroundColor(budget.remainingAmount > 0 ? .green : .red)
-                        .font(.title3)
-                } else {
-                    Text("****")
-                        .foregroundColor(.green)
-                        .font(.title3)
-                }
+                Text(showValues ?
+                     budget.remainingAmount.formatted(.currency(code: budget.currency.rawValue)) :
+                     "****")
+                    .foregroundColor(budget.remainingAmount > 0 ? .green : .red)
+                    .font(.title3)
                 
                 Text("\(budget.percentRemaining)%")
                     .font(.body)
@@ -80,7 +71,7 @@ struct BudgetCard: View {
     }
 }
 
-struct BudgetProgressBar: View {
+struct ProgressBarView: View {
     let percent: CGFloat
     let color: Color
     
