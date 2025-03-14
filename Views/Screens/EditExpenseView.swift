@@ -16,6 +16,7 @@ struct EditExpenseView: View {
     @State private var selectedCurrency: Currency
     @State private var selectedCategory: ExpenseCategory
     @State private var isEssential: Bool
+    @State private var isFlagged: Bool
     @State private var notes: String
     @State private var expenseDate: Date
     @State private var showReminder: Bool
@@ -48,6 +49,7 @@ struct EditExpenseView: View {
         _selectedCurrency = State(initialValue: expense.currency)
         _selectedCategory = State(initialValue: expense.category)
         _isEssential = State(initialValue: expense.isEssential)
+        _isFlagged = State(initialValue: expense.isFlagged)
         _notes = State(initialValue: expense.notes)
         _expenseDate = State(initialValue: expense.date)
         _showReminder = State(initialValue: expense.reminder != nil)
@@ -245,6 +247,21 @@ struct EditExpenseView: View {
                             .toggleStyle(SwitchToggleStyle(tint: accentColor))
                         }
                         
+                        // Flag toggle
+                        cardView {
+                            Toggle(isOn: $isFlagged) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Flag Expense")
+                                        .foregroundColor(textColor)
+                                    
+                                    Text("Flag this expense for any reason")
+                                        .font(.caption)
+                                        .foregroundColor(secondaryTextColor)
+                                }
+                            }
+                            .toggleStyle(SwitchToggleStyle(tint: accentColor))
+                        }
+                        
                         // Reminder toggle and settings
                         cardView {
                             VStack(alignment: .leading, spacing: 12) {
@@ -434,6 +451,7 @@ struct EditExpenseView: View {
                                         category: selectedCategory,
                                         date: expenseDate,
                                         isEssential: isEssential,
+                                        isFlagged: isFlagged,
                                         notes: notes,
                                         reminder: reminder,
                                         interestRate: selectedCategory == .savings ? interestRate : nil,

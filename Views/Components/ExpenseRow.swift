@@ -45,6 +45,13 @@ struct ExpenseRow: View {
                         if expense.isEssential {
                             EssentialBadge(colorHex: budgetColorHex)
                         }
+                        
+                        // Flag icon if flagged
+                        if expense.isFlagged {
+                            Image(systemName: "flag.fill")
+                                .foregroundColor(Color(hex: budgetColorHex))
+                                .font(.caption)
+                        }
                     }
                     
                     // Category

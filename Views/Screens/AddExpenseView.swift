@@ -42,6 +42,7 @@ struct AddExpenseView: View {
     @State private var isStudentLoanPayment = false
     @State private var showStudentLoanAlert = false
     @State private var existingStudentLoanPayment: (budgetId: UUID, expense: Expense)? = nil
+    @State private var isFlagged = false
     
     // MARK: - UI Constants
     private let backgroundColor = Color(hex: "282C3E")
@@ -361,6 +362,19 @@ struct AddExpenseView: View {
                     }
                     .toggleStyle(SwitchToggleStyle(tint: accentColor))
                     
+                    // Flag Toggle
+                    Toggle(isOn: $isFlagged) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Flag Expense")
+                                .foregroundColor(textColor)
+                            
+                            Text("Flag this expense for any reason")
+                                .font(.caption)
+                                .foregroundColor(secondaryTextColor)
+                        }
+                    }
+                    .toggleStyle(SwitchToggleStyle(tint: accentColor))
+                    
                     // Reminder Toggle & Settings
                     VStack(alignment: .leading, spacing: 12) {
                         Toggle(isOn: $showReminder) {
@@ -448,6 +462,7 @@ struct AddExpenseView: View {
             category: selectedCategory,
             date: expenseDate,
             isEssential: isEssential,
+            isFlagged: isFlagged,
             notes: notes,
             reminder: reminder,
             interestRate: selectedCategory == .savings ? interestRate : nil,

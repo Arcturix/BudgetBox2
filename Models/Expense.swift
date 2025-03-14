@@ -9,6 +9,7 @@ struct Expense: Identifiable, Codable, Hashable, Equatable {
     var category: ExpenseCategory
     var date: Date = Date()
     var isEssential: Bool = false
+    var isFlagged: Bool = false
     var notes: String = ""
     var reminder: Reminder?
     var interestRate: String? // Property for interest rate
