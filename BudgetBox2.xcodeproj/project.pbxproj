@@ -336,7 +336,7 @@
 					};
 				};
 			};
-			buildConfigurationList = AAE312892D6F783900ACD756 /* Build configuration list for PBXProject "BudgetBox1" */;
+			buildConfigurationList = AAE312892D6F783900ACD756 /* Build configuration list for PBXProject "BudgetBox2" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -589,7 +589,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jazworrell.BudgetBox2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -626,7 +626,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jazworrell.BudgetBox2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -714,7 +714,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AAE312892D6F783900ACD756 /* Build configuration list for PBXProject "BudgetBox1" */ = {
+		AAE312892D6F783900ACD756 /* Build configuration list for PBXProject "BudgetBox2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AAE312B02D6F783A00ACD756 /* Debug */,
