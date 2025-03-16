@@ -69,17 +69,17 @@ enum ExpenseCategory: String, Codable, CaseIterable, Hashable {
     
     var colorHex: String {
         switch self {
-        case .savings: return "FFC107"   // Amber
-        case .housing: return "FF5252"   // Red
-        case .food: return "4CAF50"      // Green
+        case .savings: return "FFD700" // Yellow
+        case .housing: return "FF5252" // Red
+        case .food: return "4CAF50"    // Green
         case .transportation: return "2196F3" // Blue
-        case .utilities: return "FF5252" // Red
+        case .utilities: return "FF5252" // Red (same as housing)
         case .entertainment: return "9C27B0" // Purple
         case .healthcare: return "E91E63" // Pink
-        case .shopping: return "FF9800"  // Orange
+        case .shopping: return "FF9800" // Orange
         case .subscriptions: return "607D8B" // Blue Grey
-        case .debt: return "F44336"      // Red for debt
-        case .other: return "795548"     // Brown
+        case .debt: return "F44336" // Red for debt
+        case .other: return "795548" // Brown
         }
     }
 }

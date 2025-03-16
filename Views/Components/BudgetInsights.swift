@@ -304,7 +304,7 @@ struct BudgetInsights: View {
             // Title and Balance
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
-                    Text("Student Debt")
+                    Text("Loan Tracker")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                     

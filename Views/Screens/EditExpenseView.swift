@@ -200,10 +200,10 @@ struct EditExpenseView: View {
                             cardView {
                                 Toggle(isOn: $isStudentLoanPayment) {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text("Student Loan Payment")
+                                        Text("Loan Tracker Payment")
                                             .foregroundColor(textColor)
                                         
-                                        Text("Attribute this payment to your student loan")
+                                        Text("Attribute this payment to your loan tracker")
                                             .font(.caption)
                                             .foregroundColor(secondaryTextColor)
                                     }
@@ -222,7 +222,7 @@ struct EditExpenseView: View {
                                         // Keep isStudentLoanPayment as true
                                     }
                                 } message: {
-                                    Text("Only one expense can be attributed to your student loan at a time. Do you want to replace the existing attribution?")
+                                    Text("Only one expense can be attributed to your loan tracker at a time. Do you want to replace the existing attribution?")
                                 }
                             }
                         }

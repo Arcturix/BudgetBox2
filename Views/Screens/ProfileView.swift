@@ -74,7 +74,7 @@ struct ProfileView: View {
                             Text("Show Amount Values")
                                 .foregroundColor(.white)
                         }
-                        .toggleStyle(SwitchToggleStyle(tint: Color(hex: "A169F7")))
+                        .toggleStyle(SwitchToggleStyle(tint: Color(hex: "FD5E7D")))
                         .padding()
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(10)
@@ -83,7 +83,7 @@ struct ProfileView: View {
                         // Student Loan Section
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                Text("Student Loan")
+                                Text("Loan Tracker")
                                     .font(.headline)
                                     .foregroundColor(.white)
                                 
@@ -175,7 +175,7 @@ struct ProfileView: View {
                                         .foregroundColor(.gray)
                                 }
                             }
-                            .toggleStyle(SwitchToggleStyle(tint: Color(hex: "A169F7")))
+                            .toggleStyle(SwitchToggleStyle(tint: Color(hex: "FD5E7D")))
                             .onChange(of: viewModel.budgetItemLimitEnabled) { viewModel.saveData() }
                             
                             if !viewModel.budgetItemLimitEnabled {
@@ -225,13 +225,13 @@ struct ProfileView: View {
                                     title: Text("Support BudgetBox"),
                                     message: Text("Choose a donation amount"),
                                     buttons: [
-                                        .default(Text("Small Coffee ($1.99)")) {
+                                        .default(Text("Small Coffee (€1.99)")) {
                                             makePurchase(.smallCoffee)
                                         },
-                                        .default(Text("Medium Coffee ($4.99)")) {
+                                        .default(Text("Medium Coffee (€4.99)")) {
                                             makePurchase(.mediumCoffee)
                                         },
-                                        .default(Text("Large Coffee ($9.99)")) {
+                                        .default(Text("Large Coffee (€9.99)")) {
                                             makePurchase(.largeCoffee)
                                         },
                                         .cancel()
@@ -284,7 +284,7 @@ struct ProfileView: View {
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(Color(hex: "A169F7"))
+                                .background(Color(hex: "FD5E7D"))
                                 .cornerRadius(10)
                             }
                             .disabled(feedbackText.isEmpty)
