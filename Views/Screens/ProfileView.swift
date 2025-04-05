@@ -15,7 +15,6 @@ struct ProfileView: View {
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImageData: Data?
     @State private var selectedLoanCurrency: Currency = .usd
-    @State private var feedbackText: String = ""
     @State private var isShowingMailView = false
     @State private var mailResult: Result<MFMailComposeResult, Error>?
     @State private var showMailAlert = false
@@ -163,32 +162,6 @@ struct ProfileView: View {
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(10)
                         
-                        // Budget Item Limit Toggle
-                        VStack(alignment: .leading, spacing: 5) {
-                            Toggle(isOn: $viewModel.budgetItemLimitEnabled) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Budget Item Limit")
-                                        .foregroundColor(.white)
-                                    
-                                    Text("Limit of 10 items per budget")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                }
-                            }
-                            .toggleStyle(SwitchToggleStyle(tint: Color(hex: "FD5E7D")))
-                            .onChange(of: viewModel.budgetItemLimitEnabled) { viewModel.saveData() }
-                            
-                            if !viewModel.budgetItemLimitEnabled {
-                                Text("Developer Mode: Unlimited items enabled")
-                                    .font(.caption)
-                                    .foregroundColor(.orange)
-                                    .padding(.leading)
-                            }
-                        }
-                        .padding()
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(10)
-                        
                         // Buy Me a Coffee Section
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
@@ -253,33 +226,43 @@ struct ProfileView: View {
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(10)
                         
-                        // Feedback Section
+                        // Feedback Section - simplified to direct email
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Send Feedback")
                                 .font(.headline)
                                 .foregroundColor(.white)
                             
-                            TextEditor(text: $feedbackText)
-                                .frame(minHeight: 120)
-                                .padding(10)
-                                .background(Color.black.opacity(0.2))
-                                .cornerRadius(8)
-                                .foregroundColor(.white)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                )
+                            Text("We'd love to hear your thoughts on BudgetBox! Tap the button below to send us an email with your feedback.")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                                .padding(.vertical, 4)
                             
                             Button(action: {
+                                // First check if mail is available on the device
                                 if MFMailComposeViewController.canSendMail() {
-                                    isShowingMailView = true
+                                    // Try to open mail composer directly first
+                                    let composeVC = MFMailComposeViewController()
+                                    composeVC.setToRecipients(["budgetbox1app@gmail.com"])
+                                    composeVC.setSubject("BudgetBox App Feedback")
+                                    // Present mail composer would go here, but we can't do that from a button action
+                                    // Instead, try the URL method as fallback
+                                    if let emailURL = createEmailURL(), UIApplication.shared.canOpenURL(emailURL) {
+                                        UIApplication.shared.open(emailURL)
+                                    } else {
+                                        showMailAlert = true
+                                    }
                                 } else {
-                                    showMailAlert = true
+                                    // If mail composer isn't available, try mailto: URL
+                                    if let emailURL = createEmailURL(), UIApplication.shared.canOpenURL(emailURL) {
+                                        UIApplication.shared.open(emailURL)
+                                    } else {
+                                        showMailAlert = true
+                                    }
                                 }
                             }) {
                                 HStack {
                                     Image(systemName: "envelope.fill")
-                                    Text("Submit Feedback")
+                                    Text("Send Feedback Email")
                                 }
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -287,22 +270,12 @@ struct ProfileView: View {
                                 .background(Color(hex: "FD5E7D"))
                                 .cornerRadius(10)
                             }
-                            .disabled(feedbackText.isEmpty)
-                            .opacity(feedbackText.isEmpty ? 0.6 : 1.0)
                             .alert(isPresented: $showMailAlert) {
                                 Alert(
                                     title: Text("Email Not Available"),
                                     message: Text("Your device is not configured to send emails. Please check your mail settings and try again."),
                                     dismissButton: .default(Text("OK"))
                                 )
-                            }
-                            .sheet(isPresented: $isShowingMailView) {
-                                MailView(result: $mailResult, feedbackText: feedbackText) { completed in
-                                    if completed {
-                                        // Clear the feedback text if email was sent
-                                        feedbackText = ""
-                                    }
-                                }
                             }
                         }
                         .padding()
@@ -346,6 +319,21 @@ struct ProfileView: View {
         }
         .navigationTitle("Profile")
         .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    // Create mailto URL
+    private func createEmailURL() -> URL? {
+        let recipient = "budgetbox1app@gmail.com"
+        let subject = "BudgetBox App Feedback"
+        
+        // Make sure to properly encode all components
+        let encodedRecipient = recipient.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        
+        // Create the mailto URL with proper formatting
+        let urlString = "mailto:\(encodedRecipient)?subject=\(encodedSubject)"
+        
+        return URL(string: urlString)
     }
     
     // Handle in-app purchase
@@ -400,51 +388,6 @@ struct ProfileView: View {
                     showPurchaseError = true
                 }
             }
-        }
-    }
-}
-
-// Mail view representation using UIViewControllerRepresentable
-struct MailView: UIViewControllerRepresentable {
-    @Binding var result: Result<MFMailComposeResult, Error>?
-    let feedbackText: String
-    let completion: (Bool) -> Void
-    
-    func makeUIViewController(context: Context) -> MFMailComposeViewController {
-        let composer = MFMailComposeViewController()
-        composer.mailComposeDelegate = context.coordinator
-        
-        // Configure the mail composer
-        composer.setToRecipients(["budgetbox1app@gmail.com"]) // Replace with your email
-        composer.setSubject("BudgetBox App Feedback")
-        composer.setMessageBody(feedbackText, isHTML: false)
-        
-        return composer
-    }
-    
-    func updateUIViewController(_ uiViewController: MFMailComposeViewController, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
-        let parent: MailView
-        
-        init(_ parent: MailView) {
-            self.parent = parent
-        }
-        
-        func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-            if let error = error {
-                parent.result = .failure(error)
-                parent.completion(false)
-            } else {
-                parent.result = .success(result)
-                // Only consider it "completed" if the email was actually sent
-                parent.completion(result == .sent)
-            }
-            controller.dismiss(animated: true)
         }
     }
 }

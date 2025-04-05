@@ -270,14 +270,10 @@ struct BudgetInsights: View {
             // Create a custom student loan debt card
             compactStudentLoanDebtCard()
             
-        // Placeholder implementations for remaining insight types
-        case .upcomingPayments, .savingsGoal, .spendingTrend, .categoryDistribution:
-            compactInsightCard(
-                icon: insight.icon,
-                title: insight.rawValue,
-                value: "Coming Soon",
-                color: Color(hex: insight.defaultColor)
-            )
+        // Removed the "Coming Soon" placeholders for:
+        // .upcomingPayments, .savingsGoal, .spendingTrend, .categoryDistribution
+        default:
+            EmptyView()
         }
     }
     

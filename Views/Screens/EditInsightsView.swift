@@ -6,6 +6,20 @@ struct EditInsightsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var viewModel: BudgetViewModel
     
+    // List of available insights (removing the "coming soon" ones)
+    private let availableInsights: [InsightType] = [
+        .netWorth,
+        .savingsRate,
+        .essentialExpenses,
+        .topCategory,
+        .budgetsExceeding,
+        .totalSpent,
+        .monthlyAverage,
+        .largestExpense,
+        .recentActivity,
+        .studentLoanDebt
+    ]
+    
     // MARK: - UI Constants
     private let backgroundColor = Color(hex: "383C51")
     private let cardBackground = Color(hex: "282C3E")
@@ -35,7 +49,7 @@ struct EditInsightsView: View {
                     // Available insights
                     ScrollView {
                         LazyVStack(spacing: 12) {
-                            ForEach(InsightType.allCases) { insight in
+                            ForEach(availableInsights) { insight in
                                 insightSelectionRow(insight: insight)
                             }
                         }
